@@ -81,7 +81,8 @@ export const useWebSocket = (props: UseWebSocketProps) => {
     }
 
     // Connect to WebSocket
-    const socket = io(process.env.REACT_APP_API_URL || 'http://localhost:3001', {
+    const wsUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : 'http://localhost:3002';
+    const socket = io(wsUrl, {
       transports: ['websocket', 'polling'],
       timeout: 20000,
       reconnection: true,

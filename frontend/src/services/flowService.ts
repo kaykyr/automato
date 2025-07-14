@@ -1,7 +1,9 @@
 import axios from 'axios';
 import { FlowData } from '../types/flow.types';
 
-const API_BASE = 'http://localhost:3001/api/v1';
+const API_BASE = process.env.NODE_ENV === 'development' 
+  ? 'http://localhost:3001/api/v1' 
+  : 'http://localhost:3002/api/v1';
 
 export const flowService = {
   // Create a new flow
