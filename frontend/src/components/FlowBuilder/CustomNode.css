@@ -1,0 +1,553 @@
+@import '../../styles/variables.css';
+@import '../../styles/animations.css';
+
+.custom-node {
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  min-width: 200px;
+  max-width: 450px;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--duration-fast) var(--easing-standard),
+              border-color var(--duration-fast) var(--easing-standard),
+              box-shadow var(--duration-fast) var(--easing-standard);
+  position: relative;
+  font-family: var(--font-family-sans);
+  overflow: hidden;
+  will-change: transform, border-color, box-shadow;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.custom-node:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-lg);
+  transform: translate3d(0, -1px, 0);
+}
+
+.custom-node.selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2), var(--shadow-lg);
+}
+
+.custom-node.expanded {
+  min-width: 300px;
+  max-width: 500px;
+}
+
+/* Node Execution States - Optimized for 60fps */
+.custom-node.executing {
+  border-color: var(--color-executing);
+  box-shadow: 0 0 0 2px var(--color-executing-light), var(--shadow-lg);
+  animation: glow 2s var(--easing-standard) infinite;
+  will-change: box-shadow, transform;
+}
+
+.custom-node.executing .node-header {
+  background: var(--color-executing) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.custom-node.executing .node-header::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shimmer 2s var(--easing-standard) infinite;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.custom-node.completed {
+  border-color: var(--color-completed);
+  box-shadow: 0 0 0 2px var(--color-completed-light), var(--shadow-md);
+}
+
+.custom-node.completed .node-header {
+  background: var(--color-completed) !important;
+}
+
+.custom-node.error {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 2px var(--color-error-light), var(--shadow-lg);
+  animation: shake 0.4s var(--easing-standard);
+  will-change: transform;
+}
+
+.custom-node.error .node-header {
+  background: var(--color-error) !important;
+}
+
+.custom-node.pending {
+  border-color: var(--color-pending);
+  opacity: 0.7;
+}
+
+.custom-node.pending .node-header {
+  background: var(--color-pending) !important;
+}
+
+/* Node Header */
+.node-header {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  position: relative;
+  background: var(--color-background-tertiary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.node-title {
+  flex: 1;
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+}
+
+.node-expand-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--duration-fast) var(--easing-standard),
+              background-color var(--duration-fast) var(--easing-standard),
+              opacity var(--duration-fast) var(--easing-standard);
+  opacity: 0.7;
+  will-change: transform, background-color, opacity;
+  transform: translateZ(0);
+}
+
+.node-expand-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  opacity: 1;
+  transform: scale3d(1.1, 1.1, 1);
+}
+
+/* Node Content */
+.node-content {
+  padding: var(--spacing-lg);
+  position: relative;
+  background: var(--color-background-secondary);
+}
+
+.node-summary {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family-mono);
+  word-break: break-all;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-background-tertiary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+
+/* Node Configuration */
+.node-config {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  animation: slideInUp var(--duration-slow) var(--easing-decelerate);
+  will-change: transform, opacity;
+}
+
+.config-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.config-field label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.node-input,
+.node-input-small {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  transition: border-color var(--duration-normal) var(--easing-standard),
+              box-shadow var(--duration-normal) var(--easing-standard),
+              background-color var(--duration-normal) var(--easing-standard);
+  font-family: var(--font-family-mono);
+  will-change: border-color, box-shadow, background-color;
+}
+
+.node-input-small {
+  font-size: var(--font-size-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+.node-input:focus,
+.node-input-small:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+  background: var(--color-background-tertiary);
+}
+
+.node-input::placeholder,
+.node-input-small::placeholder {
+  color: var(--color-text-tertiary);
+  font-style: italic;
+}
+
+.node-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  padding: var(--spacing-xs) 0;
+  transition: color var(--duration-fast) var(--easing-standard);
+  will-change: color;
+}
+
+.node-checkbox:hover {
+  color: var(--color-text-primary);
+}
+
+.node-checkbox input[type="checkbox"] {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+/* Node Data Info */
+.node-data-info {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family-mono);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.data-input {
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-info-bg);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-info);
+}
+
+.data-output {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-success-bg);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-success);
+}
+
+.execution-status {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.execution-status.executing {
+  background: var(--color-executing-bg);
+  border-left: 3px solid var(--color-executing);
+  color: var(--color-executing);
+}
+
+.execution-status.completed {
+  background: var(--color-completed-bg);
+  border-left: 3px solid var(--color-completed);
+  color: var(--color-completed);
+}
+
+.execution-status.error {
+  background: var(--color-error-bg);
+  border-left: 3px solid var(--color-error);
+  color: var(--color-error);
+}
+
+.execution-status.pending {
+  background: var(--color-pending-bg);
+  border-left: 3px solid var(--color-pending);
+  color: var(--color-pending);
+}
+
+.execution-error {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-error-bg);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-error);
+  color: var(--color-error);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Handle Labels for Conditional Nodes */
+.handle-labels {
+  position: absolute;
+  bottom: -30px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 var(--spacing-xl);
+  font-size: var(--font-size-xs);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.handle-label {
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  font-weight: var(--font-weight-medium);
+  font-family: var(--font-family-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--shadow-sm);
+}
+
+.handle-label.true {
+  border-color: var(--color-success);
+  color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.handle-label.false {
+  border-color: var(--color-error);
+  color: var(--color-error);
+  background: var(--color-error-bg);
+}
+
+/* React Flow Handle Styles */
+.react-flow__handle {
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 50%;
+  transition: transform var(--duration-normal) var(--easing-standard),
+              background-color var(--duration-normal) var(--easing-standard),
+              border-color var(--duration-normal) var(--easing-standard),
+              box-shadow var(--duration-normal) var(--easing-standard);
+  will-change: transform, background-color, border-color, box-shadow;
+  transform: translateZ(0);
+}
+
+.react-flow__handle:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: scale3d(1.3, 1.3, 1);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+}
+
+.react-flow__handle.react-flow__handle-top {
+  top: -10px;
+}
+
+.react-flow__handle.react-flow__handle-bottom {
+  bottom: -10px;
+}
+
+.react-flow__handle.react-flow__handle-valid {
+  background: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.react-flow__handle.react-flow__handle-connecting {
+  background: var(--color-executing);
+  border-color: var(--color-executing);
+  animation: handlePulse 1.5s var(--easing-standard) infinite;
+  will-change: transform, box-shadow;
+}
+
+/* Status Indicator */
+.node-status-indicator {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid var(--color-background-secondary);
+  z-index: 10;
+}
+
+.node-status-indicator.executing {
+  background: var(--color-executing);
+  animation: statusIndicatorPulse 1.5s var(--easing-standard) infinite;
+  will-change: transform, opacity;
+}
+
+.node-status-indicator.completed {
+  background: var(--color-completed);
+}
+
+.node-status-indicator.error {
+  background: var(--color-error);
+  animation: shake 0.4s var(--easing-standard);
+  will-change: transform;
+}
+
+.node-status-indicator.pending {
+  background: var(--color-pending);
+}
+
+/* Progress bar for long-running operations */
+.node-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--color-executing);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  transition: width var(--duration-normal) var(--easing-standard);
+  will-change: width;
+  transform: translateZ(0);
+}
+
+.node-progress.indeterminate {
+  width: 100%;
+  background: linear-gradient(90deg, transparent, var(--color-executing), transparent);
+  animation: shimmer 2s var(--easing-standard) infinite;
+  will-change: transform;
+}
+
+/* Performance-optimized keyframe animations */
+@keyframes shimmer {
+  0% { transform: translate3d(-100%, 0, 0); }
+  100% { transform: translate3d(100%, 0, 0); }
+}
+
+@keyframes handlePulse {
+  0%, 100% {
+    transform: scale3d(1, 1, 1);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    transform: scale3d(1.15, 1.15, 1);
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+  }
+}
+
+@keyframes statusIndicatorPulse {
+  0%, 100% {
+    transform: scale3d(1, 1, 1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale3d(1.3, 1.3, 1);
+    opacity: 0.8;
+  }
+}
+
+/* Legacy node edit button - hidden but kept for compatibility */
+.node-edit-btn {
+  display: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .custom-node.expanded {
+    min-width: 280px;
+    max-width: 350px;
+  }
+  
+  .node-input,
+  .node-input-small {
+    font-size: var(--font-size-xs);
+  }
+  
+  .config-field label {
+    font-size: 10px;
+  }
+  
+  .handle-labels {
+    padding: 0 var(--spacing-md);
+    bottom: -25px;
+  }
+}
+
+/* Accessibility: Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .custom-node,
+  .custom-node *,
+  .node-expand-btn,
+  .node-input,
+  .node-input-small,
+  .node-checkbox,
+  .react-flow__handle,
+  .node-progress {
+    animation: none !important;
+    transition-duration: var(--duration-instant) !important;
+  }
+  
+  /* Keep essential visual feedback but remove motion */
+  .custom-node.executing {
+    border-color: var(--color-executing) !important;
+    box-shadow: 0 0 0 2px var(--color-executing-light), var(--shadow-lg) !important;
+  }
+  
+  .custom-node.error {
+    border-color: var(--color-error) !important;
+    box-shadow: 0 0 0 2px var(--color-error-light), var(--shadow-lg) !important;
+  }
+  
+  .node-status-indicator.executing {
+    background: var(--color-executing) !important;
+  }
+  
+  .react-flow__handle.react-flow__handle-connecting {
+    background: var(--color-executing) !important;
+    border-color: var(--color-executing) !important;
+  }
+  
+  /* Remove hover transforms but keep color changes */
+  .custom-node:hover,
+  .node-expand-btn:hover,
+  .react-flow__handle:hover {
+    transform: none !important;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .custom-node {
+    border-color: var(--color-border);
+  }
+  
+  .node-input,
+  .node-input-small {
+    background: var(--color-background);
+  }
+}
