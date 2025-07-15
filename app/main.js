@@ -118,18 +118,31 @@ app.whenReady().then(async () => {
   });
 });
 
+// Function to cleanup backend process
+function cleanupBackend() {
+  if (backendProcess) {
+    console.log('Killing backend process...');
+    backendProcess.kill('SIGTERM');
+    // Force kill if not terminated after 3 seconds
+    setTimeout(() => {
+      if (backendProcess) {
+        console.log('Force killing backend process...');
+        backendProcess.kill('SIGKILL');
+        backendProcess = null;
+      }
+    }, 3000);
+  }
+}
+
 // Quit when all windows are closed
 app.on('window-all-closed', () => {
-  // Kill backend process
-  if (backendProcess) {
-    backendProcess.kill();
-    backendProcess = null;
-  }
+  cleanupBackend();
+  app.quit(); // Always quit the app when all windows are closed
+});
 
-  // On macOS, keep app running even when all windows are closed
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+// Ensure backend is killed when app quits
+app.on('before-quit', () => {
+  cleanupBackend();
 });
 
 // Security: prevent new window creation

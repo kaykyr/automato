@@ -10,8 +10,8 @@ export class FlowExecution {
   flow: Flow;
 
   @Column({
-    type: 'enum',
-    enum: ['pending', 'running', 'completed', 'failed'],
+    type: 'varchar',
+    length: 20,
     default: 'pending'
   })
   status: string;
@@ -28,7 +28,7 @@ export class FlowExecution {
   @CreateDateColumn()
   startedAt: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   completedAt: Date;
 
   @Column('json', { default: '{}' })

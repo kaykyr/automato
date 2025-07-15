@@ -8,7 +8,7 @@ export class HandicapCache {
   @Column({ length: 200, unique: true })
   cacheKey: string; // ex: "handicap:brasileirao-serie-c:18249"
 
-  @Column({ type: 'longtext' })
+  @Column({ type: 'text' })
   data: string; // JSON stringificado dos dados
 
   @Column({ type: 'datetime' })
