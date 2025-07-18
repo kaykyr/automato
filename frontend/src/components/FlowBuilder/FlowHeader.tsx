@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
   Play, 
@@ -66,6 +66,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
 
   const handleNameEdit = () => {
     setIsEditingName(true);
@@ -82,6 +83,22 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({
   const handleDescriptionSave = () => {
     setIsEditingDescription(false);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target as Node)) {
+        setShowMoreMenu(false);
+      }
+    };
+
+    if (showMoreMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMoreMenu]);
 
   return (
     <header className="flow-header">
@@ -202,7 +219,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({
           </button>
         </div>
 
-        <div className="more-actions">
+        <div className="more-actions" ref={moreMenuRef}>
           <LanguageSelector className="header-language-selector" />
           
           <button

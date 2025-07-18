@@ -76,7 +76,7 @@ export class PlaywrightService implements OnModuleDestroy {
     // If browser settings are provided, create a new browser instance with those settings
     if (Object.keys(settings).length > 0) {
       const browser = await chromium.launch({
-        headless: settings.headless !== false,
+        headless: settings.headless,
         slowMo: 50,
         devtools: false,
         args: this.getBrowserArgs(settings.stealth !== false),

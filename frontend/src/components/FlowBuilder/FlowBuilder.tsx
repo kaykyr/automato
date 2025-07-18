@@ -135,16 +135,46 @@ export const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId }) => {
   const [isExecuting, setIsExecuting] = useState(false);
   const [showBrowserSettings, setShowBrowserSettings] = useState(false);
   const [showApiSettings, setShowApiSettings] = useState(false);
-  const [browserSettings, setBrowserSettings] = useState<BrowserSettings>({
-    stealth: true,
-    keepOpen: false,
-    headless: true,
-    viewport: { width: 1280, height: 720 }
+  const [browserSettings, setBrowserSettings] = useState<BrowserSettings>(() => {
+    const saved = localStorage.getItem('orion-browser-settings');
+    return saved ? JSON.parse(saved) : {
+      stealth: true,
+      keepOpen: false,
+      headless: true,
+      viewport: { width: 1280, height: 720 }
+    };
   });
-  const [apiConfig, setApiConfig] = useState<ApiConfig>();
+  const [apiConfig, setApiConfig] = useState<ApiConfig>(() => {
+    const saved = localStorage.getItem('orion-api-config');
+    return saved ? JSON.parse(saved) : undefined;
+  });
   
   const { toasts, toast, removeToast } = useToast();
   const { dialogState, hideDialog, confirm } = useDialog();
+
+  // Save browser settings to localStorage when they change (but not on first render)
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    
+    localStorage.setItem('orion-browser-settings', JSON.stringify(browserSettings));
+  }, [browserSettings]);
+
+  // Save API config to localStorage when it changes (but not on first render)
+  const isFirstRenderApi = useRef(true);
+  useEffect(() => {
+    if (isFirstRenderApi.current) {
+      isFirstRenderApi.current = false;
+      return;
+    }
+    
+    if (apiConfig) {
+      localStorage.setItem('orion-api-config', JSON.stringify(apiConfig));
+    }
+  }, [apiConfig]);
   
   // Auto-load flow when flowId is provided via URL
   useEffect(() => {
@@ -224,10 +254,8 @@ export const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId }) => {
                 setFlowVariables(flow.variables);
               }
 
-              // Update browser settings if they exist
-              if (flow.browserSettings) {
-                setBrowserSettings(flow.browserSettings);
-              }
+              // Don't override browser settings from localStorage
+              // Browser settings should be global, not per-flow
 
               // Update API config if it exists
               if (flow.apiConfig) {
@@ -499,7 +527,7 @@ export const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId }) => {
   }, [connectingNodeId]);
 
 
-  const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+  const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
     // Node click handler - functionality moved to inline configuration
     // const flowNode = node as FlowNode;
     // Previously used to open modal, now config is handled inline in nodes
@@ -874,10 +902,8 @@ export const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId }) => {
         setNodes(reconstructedNodes);
         setEdges(flow.edges || []);
         
-        // Update browser settings if they exist
-        if (flow.browserSettings) {
-          setBrowserSettings(flow.browserSettings);
-        }
+        // Don't override browser settings from localStorage
+        // Browser settings should be global, not per-flow
 
         // Update API config if it exists
         if (flow.apiConfig) {
@@ -992,10 +1018,8 @@ export const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId }) => {
           setFlowVariables(flow.variables);
         }
 
-        // Update browser settings if they exist
-        if (flow.browserSettings) {
-          setBrowserSettings(flow.browserSettings);
-        }
+        // Don't override browser settings from localStorage
+        // Browser settings should be global, not per-flow
 
         // Update API config if it exists
         if (flow.apiConfig) {

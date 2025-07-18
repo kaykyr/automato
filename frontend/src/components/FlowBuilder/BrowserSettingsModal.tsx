@@ -18,7 +18,7 @@ export const BrowserSettingsModal: React.FC<BrowserSettingsModalProps> = ({
   onSave,
 }) => {
   const { t } = useTranslation();
-  const [localSettings, setLocalSettings] = useState<BrowserSettings>({
+  const [localSettings, setLocalSettings] = useState<BrowserSettings>(() => ({
     stealth: true,
     keepOpen: false,
     headless: true,
@@ -27,19 +27,13 @@ export const BrowserSettingsModal: React.FC<BrowserSettingsModalProps> = ({
       height: 720,
     },
     ...settings,
-  });
+  }));
 
   useEffect(() => {
-    setLocalSettings({
-      stealth: true,
-      keepOpen: false,
-      headless: true,
-      viewport: {
-        width: 1280,
-        height: 720,
-      },
+    setLocalSettings(prev => ({
+      ...prev,
       ...settings,
-    });
+    }));
   }, [settings]);
 
   if (!isOpen) return null;
