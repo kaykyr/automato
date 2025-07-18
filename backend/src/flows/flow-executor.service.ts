@@ -179,6 +179,10 @@ export class FlowExecutorService {
             const waitBefore = parseInt(String(config.click.waitBefore)) || 0;
             await page.waitForTimeout(waitBefore);
           }
+          
+          // Check for common modals that might block clicks
+          await this.handleBlockingModals(page);
+          
           await page.click(clickSelector);
           return { success: true, selector: clickSelector };
 
@@ -1139,6 +1143,79 @@ export class FlowExecutorService {
           execution
         );
       }
+    }
+  }
+
+  private async handleBlockingModals(page: any): Promise<void> {
+    try {
+      // Common modal selectors that might block interactions
+      const modalSelectors = [
+        '#age-verification-modal',
+        '.age-verification-modal',
+        '[data-qa="age-verification"]',
+        '.modal-backdrop',
+        '.cookie-consent-modal',
+        '#cookie-modal',
+        '.gdpr-modal',
+        '.overlay-modal'
+      ];
+
+      for (const selector of modalSelectors) {
+        try {
+          const modal = await page.$(selector);
+          if (modal) {
+            const isVisible = await modal.isVisible();
+            if (isVisible) {
+              console.log(`🚪 Detected blocking modal: ${selector}`);
+              
+              // Try common close button patterns
+              const closeSelectors = [
+                `${selector} [data-qa="close"]`,
+                `${selector} .close-button`,
+                `${selector} .btn-close`,
+                `${selector} [aria-label="Close"]`,
+                `${selector} .modal-close`,
+                `${selector} button:has-text("Fechar")`,
+                `${selector} button:has-text("Close")`,
+                `${selector} button:has-text("×")`,
+                `${selector} button:has-text("X")`,
+                `${selector} button:has-text("Concordo")`,
+                `${selector} button:has-text("Aceitar")`,
+                `${selector} button:has-text("OK")`,
+                `${selector} button:has-text("Sim")`,
+                `${selector} button:has-text("Tenho mais de 18 anos")`
+              ];
+
+              let closed = false;
+              for (const closeSelector of closeSelectors) {
+                try {
+                  const closeButton = await page.$(closeSelector);
+                  if (closeButton && await closeButton.isVisible()) {
+                    console.log(`🔘 Clicking close button: ${closeSelector}`);
+                    await closeButton.click();
+                    await page.waitForTimeout(500); // Wait for modal to close
+                    closed = true;
+                    break;
+                  }
+                } catch (error) {
+                  // Continue to next close selector
+                }
+              }
+
+              if (!closed) {
+                // Try pressing Escape key
+                console.log(`⎋ Trying to close modal with Escape key`);
+                await page.keyboard.press('Escape');
+                await page.waitForTimeout(500);
+              }
+            }
+          }
+        } catch (error) {
+          // Continue to next modal selector
+        }
+      }
+    } catch (error) {
+      console.log(`⚠️  Error handling modals: ${error.message}`);
     }
   }
 
