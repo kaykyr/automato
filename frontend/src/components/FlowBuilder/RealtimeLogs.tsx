@@ -29,7 +29,7 @@ interface RealtimeLogsProps {
   isOpen: boolean;
   onClose: () => void;
   logs: LogEntry[];
-  executionStatus: 'idle' | 'running' | 'completed' | 'failed';
+  executionStatus: 'idle' | 'running' | 'completed' | 'failed' | 'cancelled';
   currentNode?: string;
   variables?: Record<string, any>;
   error?: string;
@@ -69,6 +69,8 @@ export const RealtimeLogs: React.FC<RealtimeLogsProps> = ({
         return <CheckCircle size={16} className="text-green-400" />;
       case 'failed':
         return <AlertCircle size={16} className="text-red-400" />;
+      case 'cancelled':
+        return <Square size={16} className="text-yellow-400" />;
       default:
         return <Square size={16} className="text-gray-400" />;
     }

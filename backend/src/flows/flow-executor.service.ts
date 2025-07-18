@@ -11,6 +11,7 @@ import { FlowWebSocketGateway } from '../websocket/websocket.gateway';
 export class FlowExecutorService {
   private readonly logger = new Logger(FlowExecutorService.name);
   private readonly runningExecutions = new Map<string, boolean>();
+  private readonly executionBrowsers = new Map<string, { page: Page; browser: any }>();
 
   constructor(
     private readonly playwrightService: PlaywrightService,
@@ -21,13 +22,20 @@ export class FlowExecutorService {
 
   async executeFlow(flow: Flow, execution: FlowExecution, variables: Record<string, any> = {}) {
     const browserSettings = flow.browserSettings || {};
-    const page = await this.playwrightService.createPage(browserSettings);
+    const pageInfo = await this.playwrightService.createPage(browserSettings);
+    const page = 'page' in pageInfo ? pageInfo.page : pageInfo;
+    const browser = 'browser' in pageInfo ? pageInfo.browser : null;
     const executionVariables = { ...flow.variables, ...variables };
     const executionLog = [];
 
     try {
       // Mark execution as running
       this.runningExecutions.set(execution.id, true);
+      
+      // Store browser info for cleanup
+      if (browser) {
+        this.executionBrowsers.set(execution.id, { page, browser });
+      }
       
       execution.status = 'running';
       await this.executionRepository.save(execution);
@@ -123,9 +131,8 @@ export class FlowExecutorService {
       // Clean up running execution marker
       this.runningExecutions.delete(execution.id);
       
-      if (!browserSettings.keepOpen) {
-        await page.close();
-      }
+      // Clean up browser resources
+      await this.cleanupExecution(execution.id, browserSettings.keepOpen);
     }
   }
 
@@ -1136,8 +1143,36 @@ export class FlowExecutorService {
     return sorted;
   }
 
-  stopExecution(executionId: string): void {
+  async stopExecution(executionId: string): Promise<void> {
     this.logger.log(`Stopping execution: ${executionId}`);
     this.runningExecutions.set(executionId, false);
+    
+    // Immediately cleanup browser resources
+    await this.cleanupExecution(executionId, false);
+  }
+
+  private async cleanupExecution(executionId: string, keepOpen: boolean = false): Promise<void> {
+    const browserInfo = this.executionBrowsers.get(executionId);
+    
+    if (browserInfo) {
+      try {
+        if (!keepOpen) {
+          // Close page first
+          if (browserInfo.page && !browserInfo.page.isClosed()) {
+            await browserInfo.page.close();
+          }
+          
+          // Force close browser instance
+          if (browserInfo.browser) {
+            await browserInfo.browser.close();
+          }
+        }
+      } catch (error) {
+        this.logger.error(`Error cleaning up browser for execution ${executionId}:`, error);
+      } finally {
+        // Remove from tracking
+        this.executionBrowsers.delete(executionId);
+      }
+    }
   }
 }

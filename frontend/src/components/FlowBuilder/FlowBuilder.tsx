@@ -349,7 +349,7 @@ export const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId }) => {
         nodeId: 'system',
         nodeName: 'System',
         action: 'status',
-        level: data.status.status === 'failed' ? 'error' as const : 'info' as const,
+        level: data.status.status === 'failed' ? 'error' as const : data.status.status === 'cancelled' ? 'warning' as const : 'info' as const,
         message: `Execution ${data.status.status}`,
         data: data.status
       }]);
@@ -378,7 +378,7 @@ export const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId }) => {
       setIsExecuting(false);
       setExecutionResult((prev: any) => prev ? {
         ...prev,
-        status: 'completed',
+        status: data.status.status,
         results: data.status?.results || {},
         completedAt: data.status?.completedAt,
         executionLog: data.status?.executionLog || []
@@ -396,7 +396,7 @@ export const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId }) => {
       setIsExecuting(false);
       setExecutionResult((prev: any) => prev ? {
         ...prev,
-        status: 'failed',
+        status: data.status.status,
         error: data.status?.error,
         completedAt: data.status?.completedAt,
         executionLog: data.status?.executionLog || []
@@ -671,6 +671,9 @@ export const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId }) => {
       await flowService.stopExecution(executionResult.id);
       toast.success(t('toast.executionStopped'), t('toast.executionStoppedDesc'));
       setIsExecuting(false);
+      
+      // Clear node execution states immediately
+      setNodeExecutionStates({});
       
       // Leave WebSocket room
       if (isConnected && currentFlowId) {
@@ -1213,7 +1216,7 @@ export const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId }) => {
         isOpen={showLogs}
         onClose={() => setShowLogs(false)}
         logs={executionLogs}
-        executionStatus={isExecuting ? 'running' : executionResult?.status === 'completed' ? 'completed' : executionResult?.status === 'failed' ? 'failed' : 'idle'}
+        executionStatus={isExecuting ? 'running' : executionResult?.status === 'completed' ? 'completed' : executionResult?.status === 'failed' ? 'failed' : executionResult?.status === 'cancelled' ? 'cancelled' : 'idle'}
         currentNode={executionResult?.currentNode}
         variables={flowVariables}
         error={executionResult?.error}

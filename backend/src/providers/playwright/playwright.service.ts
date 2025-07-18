@@ -70,7 +70,7 @@ export class PlaywrightService implements OnModuleDestroy {
     return this.context;
   }
 
-  async createPage(browserSettings?: any): Promise<Page> {
+  async createPage(browserSettings?: any): Promise<Page | { page: Page; browser: any }> {
     const settings = browserSettings || {};
     
     // If browser settings are provided, create a new browser instance with those settings
@@ -116,7 +116,7 @@ export class PlaywrightService implements OnModuleDestroy {
         });
       }
 
-      return page;
+      return { page, browser };
     }
 
     // Use default shared context if no settings provided

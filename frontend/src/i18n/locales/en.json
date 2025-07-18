@@ -363,7 +363,8 @@
       "idle": "IDLE",
       "running": "RUNNING",
       "completed": "COMPLETED",
-      "failed": "FAILED"
+      "failed": "FAILED",
+      "cancelled": "CANCELLED"
     },
     "filters": {
       "all": "all",

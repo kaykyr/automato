@@ -36,7 +36,8 @@ export class BetanoService {
         this.logger.log('🎭 Usando modo stealth avançado...');
         this.page = await this.playwrightStealthService.createPage();
       } else {
-        this.page = await this.playwrightService.createPage();
+        const pageInfo = await this.playwrightService.createPage();
+        this.page = 'page' in pageInfo ? pageInfo.page : pageInfo;
       }
       
       // TEMPORARIAMENTE DESABILITADO - Verificação de sessão está causando falsos positivos
