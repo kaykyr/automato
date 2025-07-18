@@ -646,6 +646,7 @@ export const CustomNode = memo(({ data, selected, id }: NodeProps<CustomNodeData
   const hasInput = data.action !== 'start';
   const hasOutput = data.action !== 'response';
   const hasConditionalOutputs = data.action === 'condition' || data.action === 'isVisible';
+  const hasLoopOutputs = data.action === 'loop';
 
   return (
     <div 
@@ -729,6 +730,35 @@ export const CustomNode = memo(({ data, selected, id }: NodeProps<CustomNodeData
               <div className="handle-labels">
                 <span className="handle-label true">True</span>
                 <span className="handle-label false">False</span>
+              </div>
+            </>
+          ) : hasLoopOutputs ? (
+            <>
+              <Handle
+                type="source"
+                position={Position.Bottom}
+                id="loop"
+                isConnectable={true}
+                style={{ 
+                  left: '30%',
+                  backgroundColor: '#2196F3',
+                  transform: 'translateX(-50%)'
+                }}
+              />
+              <Handle
+                type="source"
+                position={Position.Bottom}
+                id="after"
+                isConnectable={true}
+                style={{ 
+                  left: '70%',
+                  backgroundColor: '#FF9800',
+                  transform: 'translateX(-50%)'
+                }}
+              />
+              <div className="handle-labels">
+                <span className="handle-label true">Loop</span>
+                <span className="handle-label false">After</span>
               </div>
             </>
           ) : (

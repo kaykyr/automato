@@ -1044,11 +1044,24 @@ export class FlowExecutorService {
   ) {
     const { itemVariable, indexVariable } = loopConfig;
     
-    // Find next nodes connected to the loop
-    const nextNodes = edges
-      .filter(edge => edge.source === loopNode.id)
+    // Find next nodes connected to the loop, separated by handle type
+    const loopNodes = edges
+      .filter(edge => edge.source === loopNode.id && edge.sourceHandle === 'loop')
       .map(edge => nodes.find(node => node.id === edge.target))
       .filter(node => node);
+    
+    const afterNodes = edges
+      .filter(edge => edge.source === loopNode.id && edge.sourceHandle === 'after')
+      .map(edge => nodes.find(node => node.id === edge.target))
+      .filter(node => node);
+    
+    // For backward compatibility, if no sourceHandle is specified, treat as loop nodes
+    const legacyNodes = edges
+      .filter(edge => edge.source === loopNode.id && !edge.sourceHandle)
+      .map(edge => nodes.find(node => node.id === edge.target))
+      .filter(node => node);
+    
+    const nextNodes = [...loopNodes, ...legacyNodes];
 
     if (nextNodes.length === 0) {
       return; // No nodes to execute
@@ -1109,6 +1122,23 @@ export class FlowExecutorService {
       executionVariables[indexVariable] = originalIndexValue;
     } else {
       delete executionVariables[indexVariable];
+    }
+
+    // After loop completes, execute nodes connected to the "after" handle
+    if (afterNodes.length > 0) {
+      console.log(`🔄 Loop completed. Executing ${afterNodes.length} after-loop nodes...`);
+      
+      for (const afterNode of afterNodes) {
+        await this.executeNodeRecursive(
+          afterNode,
+          nodes,
+          edges,
+          page,
+          executionVariables,
+          executionLog,
+          execution
+        );
+      }
     }
   }
 
