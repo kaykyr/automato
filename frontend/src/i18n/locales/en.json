@@ -256,6 +256,7 @@
     "flowUpdatedDesc": "Your flow has been updated successfully",
     "flowExported": "Flow exported successfully",
     "flowImported": "Flow imported successfully",
+    "flowLoaded": "Flow loaded successfully",
     "executionStarted": "Flow execution started",
     "executionCompleted": "Flow execution completed",
     "executionFailed": "Flow execution failed",

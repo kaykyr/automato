@@ -1,6 +1,9 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import { FlowBuilderWrapper } from '../components/FlowBuilder';
 
 export const FlowBuilderPage: React.FC = () => {
-  return <FlowBuilderWrapper />;
+  const { flowId } = useParams<{ flowId?: string }>();
+  
+  return <FlowBuilderWrapper flowId={flowId} />;
 };

@@ -256,6 +256,7 @@
     "flowUpdatedDesc": "Seu fluxo foi atualizado com sucesso",
     "flowExported": "Fluxo exportado com sucesso",
     "flowImported": "Fluxo importado com sucesso",
+    "flowLoaded": "Fluxo carregado com sucesso",
     "executionStarted": "Execução do fluxo iniciada",
     "executionCompleted": "Execução do fluxo concluída",
     "executionFailed": "Execução do fluxo falhou",

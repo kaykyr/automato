@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import ReactFlow, {
   ReactFlowProvider,
   addEdge,
@@ -41,8 +42,13 @@ const nodeTypes = {
 // Generate unique IDs using timestamp + random number
 const getId = () => `node_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-export const FlowBuilder: React.FC = () => {
+interface FlowBuilderProps {
+  flowId?: string;
+}
+
+export const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [flowVariables, setFlowVariables] = useState<Record<string, any>>({});
   const [nodeExecutionStates, setNodeExecutionStates] = useState<Record<string, 'idle' | 'executing' | 'completed' | 'error' | 'pending'>>({});
@@ -139,6 +145,97 @@ export const FlowBuilder: React.FC = () => {
   
   const { toasts, toast, removeToast } = useToast();
   const { dialogState, hideDialog, confirm } = useDialog();
+  
+  // Auto-load flow when flowId is provided via URL
+  useEffect(() => {
+    if (flowId && flowId !== currentFlowId) {
+      const loadFlowById = async () => {
+        try {
+          const flow = await flowService.getFlow(flowId);
+          if (flow) {
+            // Use the existing handleLoadSavedFlow logic
+            requestAnimationFrame(() => {
+              setFlowName(flow.name);
+              setFlowDescription(flow.description || '');
+              setCurrentFlowId(flowId);
+              
+              // Reconstruct nodes with proper callbacks
+              const reconstructedNodes = (flow.nodes || []).map((node: any) => {
+                const baseNode = {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    variables: flowVariables,
+                    onConfigChange: (config: any) => {
+                      requestAnimationFrame(() => {
+                        setNodes((nds) =>
+                          nds.map((n) =>
+                            n.id === node.id
+                              ? { ...n, data: { ...n.data, config } }
+                              : n
+                          )
+                        );
+                      });
+                    },
+                  },
+                };
+
+                // Apply special styling for start and response nodes
+                if (node.id === 'start-node' || node.data.action === 'start') {
+                  return {
+                    ...baseNode,
+                    id: 'start-node',
+                    deletable: false,
+                    sourcePosition: Position.Bottom,
+                    style: {
+                      background: '#16A34A',
+                      color: 'white',
+                      border: '2px solid #15803D',
+                      borderRadius: '8px',
+                      fontWeight: 'bold',
+                    },
+                  };
+                }
+
+                if (node.id === 'response-node' || node.data.action === 'response') {
+                  return {
+                    ...baseNode,
+                    id: 'response-node',
+                    deletable: false,
+                    targetPosition: Position.Top,
+                    style: {
+                      background: '#DC2626',
+                      color: 'white',
+                      border: '2px solid #B91C1C',
+                      borderRadius: '8px',
+                      fontWeight: 'bold',
+                    },
+                  };
+                }
+
+                return baseNode;
+              });
+
+              setNodes(reconstructedNodes);
+              setEdges(flow.edges || []);
+              
+              // Update flow variables if they exist
+              if (flow.variables) {
+                setFlowVariables(flow.variables);
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Error loading flow:', error);
+          toast.error(t('toast.loadError'), t('toast.loadErrorDesc'));
+          // Navigate back to base flow route if loading fails
+          navigate('/flow');
+        }
+      };
+
+      loadFlowById();
+    }
+  }, [flowId, currentFlowId, flowVariables, setNodes, setEdges, toast, t, navigate]);
   
   // Performance monitoring
   const performanceMetrics = useAnimationPerformance(true);
@@ -643,89 +740,6 @@ export const FlowBuilder: React.FC = () => {
     }
   };
 
-  const handleLoadSavedFlow = async (flow: any) => {
-    // Use requestAnimationFrame for smooth loading
-    requestAnimationFrame(() => {
-      setFlowName(flow.name);
-      setFlowDescription(flow.description || '');
-      
-      // Reconstruct nodes with proper callbacks
-      const reconstructedNodes = (flow.nodes || []).map((node: any) => {
-        const baseNode = {
-          ...node,
-          data: {
-            ...node.data,
-            variables: flowVariables,
-            onConfigChange: (config: any) => {
-              requestAnimationFrame(() => {
-                setNodes((nds) =>
-                  nds.map((n) =>
-                    n.id === node.id
-                      ? { ...n, data: { ...n.data, config } }
-                      : n
-                  )
-                );
-              });
-            },
-          },
-        };
-
-      // Apply special styling and restrictions to fundamental nodes
-      if (node.id === 'start-node' || node.data.action === 'start') {
-        return {
-          ...baseNode,
-          id: 'start-node',
-          deletable: false,
-          sourcePosition: Position.Bottom,
-          style: {
-            background: '#16A34A',
-            color: 'white',
-            border: '2px solid #15803D',
-            borderRadius: '8px',
-            fontWeight: 'bold',
-          },
-        };
-      }
-
-      if (node.id === 'response-node' || node.data.action === 'response') {
-        return {
-          ...baseNode,
-          id: 'response-node',
-          deletable: false,
-          targetPosition: Position.Top,
-          style: {
-            background: '#DC2626',
-            color: 'white',
-            border: '2px solid #B91C1C',
-            borderRadius: '8px',
-            fontWeight: 'bold',
-          },
-        };
-      }
-
-      return baseNode;
-    });
-
-    // Ensure Start and Response nodes exist
-    const hasStartNode = reconstructedNodes.some((n: any) => n.id === 'start-node');
-    const hasResponseNode = reconstructedNodes.some((n: any) => n.id === 'response-node');
-
-    if (!hasStartNode) {
-      reconstructedNodes.unshift(createInitialNodes()[0]);
-    }
-
-    if (!hasResponseNode) {
-      reconstructedNodes.push(createInitialNodes()[1]);
-    }
-    
-      setNodes(reconstructedNodes);
-      setEdges(flow.edges || []);
-      setCurrentFlowId(flow.id);
-      setBrowserSettings(flow.browserSettings || browserSettings);
-      setApiConfig(flow.apiConfig);
-      setShowFlowsList(false);
-    });
-  };
 
   const handleExportFlow = () => {
     const flow = {
@@ -851,8 +865,98 @@ export const FlowBuilder: React.FC = () => {
       setCurrentFlowId(null);
       setExecutionResult(null);
       toast.info(t('toast.newFlowCreated'), t('toast.newFlowCreatedDesc'));
+      // Navigate to base flow route when creating new flow
+      navigate('/flow');
     });
   };
+
+  const handleLoadSavedFlow = async (flow: any) => {
+    try {
+      // Update URL to reflect the loaded flow
+      navigate(`/flow/${flow.id}`);
+      
+      // Use requestAnimationFrame for smooth loading
+      requestAnimationFrame(() => {
+        setFlowName(flow.name);
+        setFlowDescription(flow.description || '');
+        setCurrentFlowId(flow.id.toString());
+        
+        // Reconstruct nodes with proper callbacks
+        const reconstructedNodes = (flow.nodes || []).map((node: any) => {
+          const baseNode = {
+            ...node,
+            data: {
+              ...node.data,
+              variables: flowVariables,
+              onConfigChange: (config: any) => {
+                requestAnimationFrame(() => {
+                  setNodes((nds) =>
+                    nds.map((n) =>
+                      n.id === node.id
+                        ? { ...n, data: { ...n.data, config } }
+                        : n
+                    )
+                  );
+                });
+              },
+            },
+          };
+
+          // Apply special styling for start and response nodes
+          if (node.id === 'start-node' || node.data.action === 'start') {
+            return {
+              ...baseNode,
+              id: 'start-node',
+              deletable: false,
+              sourcePosition: Position.Bottom,
+              style: {
+                background: '#16A34A',
+                color: 'white',
+                border: '2px solid #15803D',
+                borderRadius: '8px',
+                fontWeight: 'bold',
+              },
+            };
+          }
+
+          if (node.id === 'response-node' || node.data.action === 'response') {
+            return {
+              ...baseNode,
+              id: 'response-node',
+              deletable: false,
+              targetPosition: Position.Top,
+              style: {
+                background: '#DC2626',
+                color: 'white',
+                border: '2px solid #B91C1C',
+                borderRadius: '8px',
+                fontWeight: 'bold',
+              },
+            };
+          }
+
+          return baseNode;
+        });
+
+        setNodes(reconstructedNodes);
+        setEdges(flow.edges || []);
+        
+        // Update flow variables if they exist
+        if (flow.variables) {
+          setFlowVariables(flow.variables);
+        }
+        
+        // Close the flows list modal
+        setShowFlowsList(false);
+        
+        toast.success(t('toast.flowLoaded'), flow.name);
+      });
+    } catch (error) {
+      console.error('Error loading flow:', error);
+      toast.error(t('toast.loadError'), t('toast.loadErrorDesc'));
+    }
+  };
+
 
   return (
     <div className="flow-builder-container">
@@ -1062,8 +1166,12 @@ export const FlowBuilder: React.FC = () => {
   );
 };
 
-export const FlowBuilderWrapper: React.FC = () => (
+interface FlowBuilderWrapperProps {
+  flowId?: string;
+}
+
+export const FlowBuilderWrapper: React.FC<FlowBuilderWrapperProps> = ({ flowId }) => (
   <ReactFlowProvider>
-    <FlowBuilder />
+    <FlowBuilder flowId={flowId} />
   </ReactFlowProvider>
 );
