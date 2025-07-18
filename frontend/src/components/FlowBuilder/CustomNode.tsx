@@ -708,6 +708,7 @@ export const CustomNode = memo(({ data, selected, id }: NodeProps<CustomNodeData
                 type="source"
                 position={Position.Bottom}
                 id="true"
+                isConnectable={true}
                 style={{ 
                   left: '30%',
                   backgroundColor: '#4CAF50',
@@ -718,6 +719,7 @@ export const CustomNode = memo(({ data, selected, id }: NodeProps<CustomNodeData
                 type="source"
                 position={Position.Bottom}
                 id="false"
+                isConnectable={true}
                 style={{ 
                   left: '70%',
                   backgroundColor: '#F44336',

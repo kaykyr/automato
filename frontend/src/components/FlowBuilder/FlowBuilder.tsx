@@ -5,7 +5,6 @@ import ReactFlow, {
   addEdge,
   Background,
   Controls,
-  MiniMap,
   useNodesState,
   useEdgesState,
   Connection,
@@ -14,6 +13,7 @@ import ReactFlow, {
   ReactFlowInstance,
   Position,
   OnConnectStartParams,
+  ConnectionMode,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { CustomNode } from './CustomNode';
@@ -275,7 +275,10 @@ export const FlowBuilder: React.FC = () => {
   });
 
   const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
+    (params: Edge | Connection) => {
+      console.log('Connection params:', params);
+      setEdges((eds) => addEdge(params, eds));
+    },
     [setEdges]
   );
 
@@ -524,6 +527,38 @@ export const FlowBuilder: React.FC = () => {
   // }, []);
 
   const handleRunFlow = async () => {
+    // Auto-save flow before execution
+    try {
+      const flowData = {
+        name: flowName,
+        description: flowDescription,
+        nodes,
+        edges,
+        variables: {},
+        browserSettings,
+        apiConfig,
+      };
+
+      if (currentFlowId) {
+        // Update existing flow
+        await flowService.updateFlow(currentFlowId, flowData);
+        toast.success(t('toast.flowAutoSaved'), t('toast.flowAutoSavedDesc'));
+      } else {
+        // Create new flow
+        const newFlow = await flowService.createFlow(flowData);
+        setCurrentFlowId(newFlow.id);
+        toast.success(t('toast.flowAutoSaved'), t('toast.flowAutoSavedDesc'));
+      }
+      
+      loadSavedFlows();
+    } catch (error: any) {
+      console.error('Error auto-saving flow:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Unknown error';
+      toast.error(t('toast.autoSaveError'), errorMessage);
+      return; // Don't execute if auto-save fails
+    }
+
+    // Ensure we have a flow ID after auto-save
     if (!currentFlowId) {
       toast.warning(t('toast.saveFlowFirst'), t('toast.saveFlowFirstDesc'));
       return;
@@ -866,6 +901,7 @@ export const FlowBuilder: React.FC = () => {
             nodesDraggable={true}
             nodesConnectable={true}
             elementsSelectable={true}
+            connectionMode={ConnectionMode.Loose}
             deleteKeyCode={['Delete', 'Backspace']}
             multiSelectionKeyCode={['Meta', 'Ctrl']}
           >

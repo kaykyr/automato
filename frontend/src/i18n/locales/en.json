@@ -270,6 +270,9 @@
     "deleteErrorDesc": "There was an error deleting the flow",
     "newFlowCreated": "New flow created",
     "newFlowCreatedDesc": "A new flow has been created",
+    "flowAutoSaved": "Flow auto-saved successfully",
+    "flowAutoSavedDesc": "Your flow has been auto-saved successfully",
+    "autoSaveError": "Auto-save failed",
     "connectionLost": "Connection lost to server",
     "connectionRestored": "Connection restored to server"
   },

@@ -270,6 +270,9 @@
     "deleteErrorDesc": "Houve um erro ao excluir o fluxo",
     "newFlowCreated": "Novo fluxo criado",
     "newFlowCreatedDesc": "Um novo fluxo foi criado",
+    "flowAutoSaved": "Fluxo salvo automaticamente",
+    "flowAutoSavedDesc": "Seu fluxo foi salvo automaticamente com sucesso",
+    "autoSaveError": "Falha no salvamento automático",
     "connectionLost": "Conexão perdida com o servidor",
     "connectionRestored": "Conexão restaurada com o servidor"
   },
