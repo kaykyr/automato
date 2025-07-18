@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { FlowNode, NodeConfig } from '../../types/flow.types';
 import './NodeConfigModal.css';
@@ -10,6 +11,7 @@ interface NodeConfigModalProps {
 }
 
 export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose, onSave }) => {
+  const { t } = useTranslation();
   const [config, setConfig] = useState<NodeConfig>({});
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
       case 'navigate':
         return (
           <div className="config-field">
-            <label>URL</label>
+            <label>{t('flow.config.url')}</label>
             <input
               type="text"
               value={config.navigate?.url || ''}
@@ -44,7 +46,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
         return (
           <>
             <div className="config-field">
-              <label>CSS Selector</label>
+              <label>{t('flow.config.cssSelector')}</label>
               <input
                 type="text"
                 value={config.click?.selector || ''}
@@ -58,7 +60,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
               />
             </div>
             <div className="config-field">
-              <label>Wait Before (ms)</label>
+              <label>{t('nodeConfig.waitBefore')}</label>
               <input
                 type="number"
                 value={config.click?.waitBefore || ''}
@@ -78,7 +80,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
         return (
           <>
             <div className="config-field">
-              <label>CSS Selector</label>
+              <label>{t('flow.config.cssSelector')}</label>
               <input
                 type="text"
                 value={config.type?.selector || ''}
@@ -94,7 +96,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
               />
             </div>
             <div className="config-field">
-              <label>Text to Type</label>
+              <label>{t('nodeConfig.textToType')}</label>
               <input
                 type="text"
                 value={config.type?.text || ''}
@@ -109,7 +111,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
               />
             </div>
             <div className="config-field">
-              <label>Typing Delay (ms)</label>
+              <label>{t('nodeConfig.typingDelay')}</label>
               <input
                 type="number"
                 value={config.type?.delay || ''}
@@ -138,7 +140,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
                     } 
                   })}
                 />
-                Clear field before typing
+                {t('nodeConfig.clearField')}
               </label>
             </div>
           </>
@@ -148,7 +150,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
         return (
           <>
             <div className="config-field">
-              <label>CSS Selector</label>
+              <label>{t('flow.config.cssSelector')}</label>
               <input
                 type="text"
                 value={config.waitFor?.selector || ''}
@@ -163,7 +165,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
               />
             </div>
             <div className="config-field">
-              <label>Timeout (ms)</label>
+              <label>{t('nodeConfig.timeout')}</label>
               <input
                 type="number"
                 value={config.waitFor?.timeout || 30000}
@@ -177,7 +179,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
               />
             </div>
             <div className="config-field">
-              <label>Wait State</label>
+              <label>{t('nodeConfig.waitState')}</label>
               <select
                 value={config.waitFor?.state || 'visible'}
                 onChange={(e) => setConfig({ 
@@ -188,10 +190,10 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
                   } 
                 })}
               >
-                <option value="visible">Visible</option>
-                <option value="attached">Attached</option>
-                <option value="detached">Detached</option>
-                <option value="hidden">Hidden</option>
+                <option value="visible">{t('nodeConfig.states.visible')}</option>
+                <option value="attached">{t('nodeConfig.states.attached')}</option>
+                <option value="detached">{t('nodeConfig.states.detached')}</option>
+                <option value="hidden">{t('nodeConfig.states.hidden')}</option>
               </select>
             </div>
           </>
@@ -253,7 +255,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
         return (
           <>
             <div className="config-field">
-              <label>CSS Selector</label>
+              <label>{t('flow.config.cssSelector')}</label>
               <input
                 type="text"
                 value={config.extractText?.selector || ''}
@@ -306,7 +308,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
         return (
           <>
             <div className="config-field">
-              <label>CSS Selector</label>
+              <label>{t('flow.config.cssSelector')}</label>
               <input
                 type="text"
                 value={config.extractHtml?.selector || ''}
@@ -419,7 +421,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
         return (
           <>
             <div className="config-field">
-              <label>CSS Selector</label>
+              <label>{t('flow.config.cssSelector')}</label>
               <input
                 type="text"
                 value={config.isVisible?.selector || ''}
@@ -433,7 +435,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
               />
             </div>
             <div className="config-field">
-              <label>Timeout (ms)</label>
+              <label>{t('nodeConfig.timeout')}</label>
               <input
                 type="number"
                 value={config.isVisible?.timeout || 5000}
@@ -473,7 +475,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
               </select>
             </div>
             <div className="config-field">
-              <label>CSS Selector</label>
+              <label>{t('flow.config.cssSelector')}</label>
               <input
                 type="text"
                 value={config.condition?.selector || ''}
@@ -544,7 +546,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
             </div>
             {config.loop?.type === 'forEach' && (
               <div className="config-field">
-                <label>CSS Selector</label>
+                <label>{t('flow.config.cssSelector')}</label>
                 <input
                   type="text"
                   value={config.loop?.selector || ''}
@@ -667,7 +669,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
               </select>
             </div>
             <div className="config-field">
-              <label>URL</label>
+              <label>{t('flow.config.url')}</label>
               <input
                 type="text"
                 value={config.api?.url || ''}
@@ -753,7 +755,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
         return (
           <>
             <div className="config-field">
-              <label>CSS Selector</label>
+              <label>{t('flow.config.cssSelector')}</label>
               <input
                 type="text"
                 value={config.extractAttribute?.selector || ''}
@@ -801,7 +803,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
         return (
           <>
             <div className="config-field">
-              <label>CSS Selector</label>
+              <label>{t('flow.config.cssSelector')}</label>
               <input
                 type="text"
                 value={config.hover?.selector || ''}
@@ -835,7 +837,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
         return (
           <>
             <div className="config-field">
-              <label>CSS Selector</label>
+              <label>{t('flow.config.cssSelector')}</label>
               <input
                 type="text"
                 value={config.selectOption?.selector || ''}
@@ -883,7 +885,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
         return (
           <>
             <div className="config-field">
-              <label>CSS Selector</label>
+              <label>{t('flow.config.cssSelector')}</label>
               <input
                 type="text"
                 value={config.checkBox?.selector || ''}
@@ -1238,7 +1240,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
             
             {config.regex?.source === 'element' && (
               <div className="config-field">
-                <label>CSS Selector</label>
+                <label>{t('flow.config.cssSelector')}</label>
                 <input
                   type="text"
                   value={config.regex?.selector || ''}
@@ -1384,7 +1386,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
         return (
           <>
             <div className="config-field">
-              <label>CSS Selector</label>
+              <label>{t('flow.config.cssSelector')}</label>
               <input
                 type="text"
                 value={config.extractUrls?.selector || ''}
@@ -1598,7 +1600,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
         );
 
       default:
-        return <p>Configuration not available for this node type.</p>;
+        return <p>{t('nodeConfig.notAvailable')}</p>;
     }
   };
 
@@ -1606,7 +1608,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>Configure {node.data.label}</h3>
+          <h3>{t('nodeConfig.configure', { label: node.data.label })}</h3>
           <button className="modal-close" onClick={onClose}>
             <X size={20} />
           </button>
@@ -1615,8 +1617,8 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
           {renderConfigFields()}
         </div>
         <div className="modal-footer">
-          <button className="btn-cancel" onClick={onClose}>Cancel</button>
-          <button className="btn-save" onClick={handleSave}>Save</button>
+          <button className="btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
+          <button className="btn-save" onClick={handleSave}>{t('common.save')}</button>
         </div>
       </div>
     </div>

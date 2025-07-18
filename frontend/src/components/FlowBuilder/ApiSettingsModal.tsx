@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Globe, Clock, Plus, Trash2 } from 'lucide-react';
 import { ApiConfig } from '../../types/flow.types';
 import './ApiSettingsModal.css';
@@ -16,6 +17,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
   settings,
   onSave,
 }) => {
+  const { t } = useTranslation();
   const [localSettings, setLocalSettings] = useState<ApiConfig>({
     route: '/api/custom/endpoint',
     method: 'POST',
@@ -38,7 +40,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
   const handleSave = () => {
     // Validate route format
     if (!localSettings.route.startsWith('/')) {
-      alert('Route must start with /');
+      alert(t('api.validation.routeStartSlash'));
       return;
     }
     onSave(localSettings);
@@ -79,7 +81,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
         <div className="modal-header">
           <h3>
             <Globe size={20} />
-            API Endpoint Configuration
+            {t('api.title')}
           </h3>
           <button className="modal-close" onClick={onClose}>
             <X size={20} />
@@ -89,24 +91,24 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
         <div className="modal-body">
           {/* Route Configuration */}
           <div className="settings-section">
-            <h4>Endpoint Settings</h4>
+            <h4>{t('api.endpoint.title')}</h4>
             
             <div className="setting-item">
               <label>
-                Route Path
+                {t('api.endpoint.routePath')}
                 <input
                   type="text"
                   value={localSettings.route}
                   onChange={(e) => setLocalSettings({ ...localSettings, route: e.target.value })}
-                  placeholder="/api/v1/my-endpoint"
+                  placeholder={t('api.endpoint.routePathPlaceholder')}
                 />
-                <small>This will be accessible at: http://localhost:3001{localSettings.route}</small>
+                <small>{t('api.endpoint.routePathDesc', { route: localSettings.route })}</small>
               </label>
             </div>
 
             <div className="setting-item">
               <label>
-                HTTP Method
+                {t('api.endpoint.httpMethod')}
                 <select
                   value={localSettings.method}
                   onChange={(e) => setLocalSettings({ ...localSettings, method: e.target.value as any })}
@@ -128,8 +130,8 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                   onChange={(e) => setLocalSettings({ ...localSettings, requiresAuth: e.target.checked })}
                 />
                 <span className="toggle-text">
-                  <strong>Require Authentication</strong>
-                  <small>API Key will be required to access this endpoint</small>
+                  <strong>{t('api.endpoint.requireAuth')}</strong>
+                  <small>{t('api.endpoint.requireAuthDesc')}</small>
                 </span>
               </label>
             </div>
@@ -138,10 +140,10 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
           {/* Parameters */}
           <div className="settings-section">
             <h4>
-              Parameters
+              {t('api.parameters.title')}
               <button className="btn-add-param" onClick={addParameter}>
                 <Plus size={16} />
-                Add Parameter
+                {t('api.parameters.add')}
               </button>
             </h4>
             
@@ -152,7 +154,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                     <div className="param-fields">
                       <input
                         type="text"
-                        placeholder="Parameter name"
+                        placeholder={t('api.parameters.namePlaceholder')}
                         value={param.name}
                         onChange={(e) => updateParameter(index, 'name', e.target.value)}
                       />
@@ -160,9 +162,9 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                         value={param.type}
                         onChange={(e) => updateParameter(index, 'type', e.target.value)}
                       >
-                        <option value="query">Query</option>
-                        <option value="body">Body</option>
-                        <option value="param">URL Param</option>
+                        <option value="query">{t('api.parameters.types.query')}</option>
+                        <option value="body">{t('api.parameters.types.body')}</option>
+                        <option value="param">{t('api.parameters.types.param')}</option>
                       </select>
                       <label className="required-checkbox">
                         <input
@@ -170,7 +172,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                           checked={param.required}
                           onChange={(e) => updateParameter(index, 'required', e.target.checked)}
                         />
-                        Required
+                        {t('api.parameters.required')}
                       </label>
                       <button
                         className="btn-remove-param"
@@ -181,7 +183,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                     </div>
                     <input
                       type="text"
-                      placeholder="Description (optional)"
+                      placeholder={t('api.parameters.descriptionPlaceholder')}
                       value={param.description || ''}
                       onChange={(e) => updateParameter(index, 'description', e.target.value)}
                       className="param-description"
@@ -190,7 +192,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                 ))}
               </div>
             ) : (
-              <p className="no-params">No parameters defined. Click "Add Parameter" to create one.</p>
+              <p className="no-params">{t('api.parameters.noParams')}</p>
             )}
           </div>
 
@@ -198,7 +200,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
           <div className="settings-section">
             <h4>
               <Clock size={16} />
-              Rate Limiting
+              {t('api.rateLimit.title')}
             </h4>
             
             <div className="setting-item">
@@ -219,8 +221,8 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                   }}
                 />
                 <span className="toggle-text">
-                  <strong>Enable Rate Limiting</strong>
-                  <small>Limit the number of requests per time window</small>
+                  <strong>{t('api.rateLimit.enable')}</strong>
+                  <small>{t('api.rateLimit.enableDesc')}</small>
                 </span>
               </label>
             </div>
@@ -229,7 +231,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
               <div className="rate-limit-config">
                 <div className="input-group">
                   <label>
-                    Max Requests
+                    {t('api.rateLimit.maxRequests')}
                     <input
                       type="number"
                       value={localSettings.rateLimit.maxRequests}
@@ -245,7 +247,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                     />
                   </label>
                   <label>
-                    Time Window (ms)
+                    {t('api.rateLimit.timeWindow')}
                     <input
                       type="number"
                       value={localSettings.rateLimit.windowMs}
@@ -262,8 +264,10 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                   </label>
                 </div>
                 <small>
-                  {localSettings.rateLimit.maxRequests} requests per{' '}
-                  {localSettings.rateLimit.windowMs / 1000} seconds
+                  {t('api.rateLimit.summary', { 
+                    requests: localSettings.rateLimit.maxRequests, 
+                    seconds: localSettings.rateLimit.windowMs / 1000 
+                  })}
                 </small>
               </div>
             )}
@@ -271,11 +275,11 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
 
           {/* Response Type */}
           <div className="settings-section">
-            <h4>Response Configuration</h4>
+            <h4>{t('api.response.title')}</h4>
             
             <div className="setting-item">
               <label>
-                Response Type
+                {t('api.response.type')}
                 <select
                   value={localSettings.response?.type || 'json'}
                   onChange={(e) =>
@@ -285,10 +289,10 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                     })
                   }
                 >
-                  <option value="json">JSON</option>
-                  <option value="text">Plain Text</option>
-                  <option value="html">HTML</option>
-                  <option value="binary">Binary (File)</option>
+                  <option value="json">{t('api.response.types.json')}</option>
+                  <option value="text">{t('api.response.types.text')}</option>
+                  <option value="html">{t('api.response.types.html')}</option>
+                  <option value="binary">{t('api.response.types.binary')}</option>
                 </select>
               </label>
             </div>
@@ -297,10 +301,10 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
 
         <div className="modal-footer">
           <button className="btn-cancel" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </button>
           <button className="btn-save" onClick={handleSave}>
-            Save API Configuration
+            {t('api.saveConfiguration')}
           </button>
         </div>
       </div>

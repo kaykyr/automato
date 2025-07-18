@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from './Modal';
 import { AlertTriangle, Info, AlertCircle, CheckCircle } from 'lucide-react';
 import './Dialog.css';
@@ -32,11 +33,15 @@ export const Dialog: React.FC<DialogProps> = ({
   title,
   message,
   type = 'confirm',
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText,
+  cancelText,
   showCancel = true,
 }) => {
+  const { t } = useTranslation();
   const Icon = icons[type];
+  
+  const defaultConfirmText = confirmText || t('common.ok');
+  const defaultCancelText = cancelText || t('common.cancel');
 
   const handleConfirm = () => {
     onConfirm?.();
@@ -71,14 +76,14 @@ export const Dialog: React.FC<DialogProps> = ({
             className="dialog-btn dialog-btn-secondary"
             onClick={onClose}
           >
-            {cancelText}
+            {defaultCancelText}
           </button>
         )}
         <button 
           className={`dialog-btn dialog-btn-${type === 'error' || type === 'warning' ? 'danger' : 'primary'}`}
           onClick={handleConfirm}
         >
-          {confirmText}
+          {defaultConfirmText}
         </button>
       </div>
     </Modal>

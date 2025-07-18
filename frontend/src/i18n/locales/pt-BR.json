@@ -15,6 +15,7 @@
     "info": "Informação"
   },
   "flow": {
+    "untitledFlow": "Fluxo Sem Título",
     "header": {
       "enterFlowName": "Digite o nome do fluxo",
       "addDescription": "Adicionar descrição",
@@ -226,8 +227,8 @@
   },
   "dialogs": {
     "confirmDelete": {
-      "title": "Confirmar Exclusão",
-      "message": "Tem certeza que deseja excluir este item?",
+      "title": "Excluir Fluxo",
+      "message": "Tem certeza que deseja excluir \"{{name}}\"? Esta ação não pode ser desfeita.",
       "confirm": "Excluir",
       "cancel": "Cancelar"
     },
@@ -236,18 +237,167 @@
       "message": "Tem certeza que deseja limpar todo o fluxo? Esta ação não pode ser desfeita.",
       "confirm": "Limpar",
       "cancel": "Cancelar"
+    },
+    "confirmNewFlow": {
+      "title": "Criar Novo Fluxo",
+      "message": "Criar um novo fluxo? Quaisquer alterações não salvas serão perdidas.",
+      "confirm": "Criar",
+      "cancel": "Cancelar"
     }
   },
   "toast": {
     "flowSaved": "Fluxo salvo com sucesso",
+    "flowSavedDesc": "Seu fluxo foi salvo com sucesso",
     "flowDeleted": "Fluxo excluído com sucesso",
+    "flowDeletedDesc": "O fluxo foi excluído com sucesso",
     "flowCleared": "Fluxo limpo com sucesso",
+    "flowClearedDesc": "O fluxo foi limpo",
+    "flowUpdated": "Fluxo atualizado",
+    "flowUpdatedDesc": "Seu fluxo foi atualizado com sucesso",
     "flowExported": "Fluxo exportado com sucesso",
     "flowImported": "Fluxo importado com sucesso",
     "executionStarted": "Execução do fluxo iniciada",
     "executionCompleted": "Execução do fluxo concluída",
     "executionFailed": "Execução do fluxo falhou",
+    "executionError": "Erro ao executar fluxo",
+    "executionErrorDesc": "Houve um erro ao executar o fluxo",
+    "saveFlowFirst": "Por favor, salve o fluxo primeiro",
+    "saveFlowFirstDesc": "Você precisa salvar o fluxo antes de executá-lo",
+    "saveError": "Erro ao salvar fluxo",
+    "loadError": "Erro ao carregar fluxo",
+    "loadErrorDesc": "O arquivo não pôde ser carregado. Verifique o formato do arquivo.",
+    "deleteError": "Erro ao excluir fluxo",
+    "deleteErrorDesc": "Houve um erro ao excluir o fluxo",
+    "newFlowCreated": "Novo fluxo criado",
+    "newFlowCreatedDesc": "Um novo fluxo foi criado",
     "connectionLost": "Conexão perdida com o servidor",
     "connectionRestored": "Conexão restaurada com o servidor"
+  },
+  "browser": {
+    "title": "Configurações do Navegador",
+    "saveSettings": "Salvar Configurações",
+    "security": {
+      "title": "Segurança e Detecção",
+      "stealthMode": "Modo Stealth",
+      "stealthModeDesc": "Evita detecção de automação (recomendado)"
+    },
+    "control": {
+      "title": "Controle do Navegador",
+      "keepOpen": "Manter Navegador Aberto",
+      "keepOpenDesc": "Mantém o navegador aberto após conclusão",
+      "showWindow": "Exibir Janela do Navegador",
+      "showWindowDesc": "Exibe janela do navegador durante execução"
+    },
+    "viewport": {
+      "title": "Tamanho da Janela",
+      "width": "Largura (px)",
+      "height": "Altura (px)"
+    },
+    "viewports": {
+      "desktopHD": "Desktop HD",
+      "desktop": "Desktop",
+      "tablet": "Tablet",
+      "mobile": "Mobile"
+    },
+    "userAgent": {
+      "title": "User Agent (opcional)",
+      "placeholder": "Deixe vazio para usar o padrão"
+    }
+  },
+  "api": {
+    "title": "Configuração do Endpoint API",
+    "saveConfiguration": "Salvar Configuração da API",
+    "validation": {
+      "routeStartSlash": "Rota deve começar com /"
+    },
+    "endpoint": {
+      "title": "Configurações do Endpoint",
+      "routePath": "Caminho da Rota",
+      "routePathPlaceholder": "/api/v1/meu-endpoint",
+      "routePathDesc": "Isto estará acessível em: http://localhost:3001{{route}}",
+      "httpMethod": "Método HTTP",
+      "requireAuth": "Requer Autenticação",
+      "requireAuthDesc": "Chave API será necessária para acessar este endpoint"
+    },
+    "parameters": {
+      "title": "Parâmetros",
+      "add": "Adicionar Parâmetro",
+      "namePlaceholder": "Nome do parâmetro",
+      "required": "Obrigatório",
+      "descriptionPlaceholder": "Descrição (opcional)",
+      "noParams": "Nenhum parâmetro definido. Clique em \"Adicionar Parâmetro\" para criar um.",
+      "types": {
+        "query": "Query",
+        "body": "Body",
+        "param": "Parâmetro URL"
+      }
+    },
+    "rateLimit": {
+      "title": "Limitação de Taxa",
+      "enable": "Habilitar Limitação de Taxa",
+      "enableDesc": "Limitar o número de requisições por janela de tempo",
+      "maxRequests": "Máximo de Requisições",
+      "timeWindow": "Janela de Tempo (ms)",
+      "summary": "{{requests}} requisições por {{seconds}} segundos"
+    },
+    "response": {
+      "title": "Configuração de Resposta",
+      "type": "Tipo de Resposta",
+      "types": {
+        "json": "JSON",
+        "text": "Texto Simples",
+        "html": "HTML",
+        "binary": "Binário (Arquivo)"
+      }
+    }
+  },
+  "logs": {
+    "title": "Logs de Execução",
+    "expand": "Expandir",
+    "minimize": "Minimizar",
+    "status": {
+      "idle": "PARADO",
+      "running": "EXECUTANDO",
+      "completed": "CONCLUÍDO",
+      "failed": "FALHOU"
+    },
+    "filters": {
+      "all": "todos",
+      "info": "info",
+      "success": "sucesso",
+      "warning": "aviso",
+      "error": "erro"
+    },
+    "autoScroll": "Rolagem automática",
+    "current": "Atual: {{node}}",
+    "executionError": "Erro de Execução",
+    "variables": "Variáveis",
+    "finalResults": "Resultados Finais",
+    "noLogs": "Nenhum log para exibir",
+    "clearFilter": "Limpar filtro",
+    "scrollToBottom": "Rolar para o final"
+  },
+  "nodeConfig": {
+    "configure": "Configurar {{label}}",
+    "notAvailable": "Configuração não disponível para este tipo de nó.",
+    "waitBefore": "Aguardar Antes (ms)",
+    "textToType": "Texto para Digitar",
+    "typingDelay": "Atraso de Digitação (ms)",
+    "clearField": "Limpar campo antes de digitar",
+    "timeout": "Tempo Limite (ms)",
+    "waitState": "Estado de Espera",
+    "states": {
+      "visible": "Visível",
+      "attached": "Anexado",
+      "detached": "Desanexado",
+      "hidden": "Oculto"
+    }
+  },
+  "savedFlows": {
+    "title": "Fluxos Salvos",
+    "noFlows": "Nenhum fluxo salvo ainda.",
+    "noDescription": "Sem descrição",
+    "created": "Criado",
+    "load": "Carregar"
   }
 }

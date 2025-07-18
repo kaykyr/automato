@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactFlow, {
   ReactFlowProvider,
   addEdge,
@@ -41,6 +42,7 @@ const nodeTypes = {
 const getId = () => `node_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
 export const FlowBuilder: React.FC = () => {
+  const { t } = useTranslation();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [flowVariables, setFlowVariables] = useState<Record<string, any>>({});
   const [nodeExecutionStates, setNodeExecutionStates] = useState<Record<string, 'idle' | 'executing' | 'completed' | 'error' | 'pending'>>({});
@@ -118,7 +120,7 @@ export const FlowBuilder: React.FC = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(createInitialNodes());
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
-  const [flowName, setFlowName] = useState('Untitled Flow');
+  const [flowName, setFlowName] = useState(t('flow.untitledFlow'));
   const [flowDescription, setFlowDescription] = useState('');
   const [currentFlowId, setCurrentFlowId] = useState<string | null>(null);
   const [savedFlows, setSavedFlows] = useState<any[]>([]);
@@ -523,7 +525,7 @@ export const FlowBuilder: React.FC = () => {
 
   const handleRunFlow = async () => {
     if (!currentFlowId) {
-      toast.warning('Please save the flow first', 'You need to save the flow before running it');
+      toast.warning(t('toast.saveFlowFirst'), t('toast.saveFlowFirstDesc'));
       return;
     }
 
@@ -570,7 +572,7 @@ export const FlowBuilder: React.FC = () => {
       setTimeout(pollExecution, 10000);
     } catch (error) {
       console.error('Error executing flow:', error);
-      toast.error('Error executing flow', 'There was an error while executing the flow');
+      toast.error(t('toast.executionError'), t('toast.executionErrorDesc'));
       setIsExecuting(false);
     }
   };
@@ -590,19 +592,19 @@ export const FlowBuilder: React.FC = () => {
       if (currentFlowId) {
         // Update existing flow
         await flowService.updateFlow(currentFlowId, flowData);
-        toast.success('Flow updated', 'Your flow has been updated successfully');
+        toast.success(t('toast.flowUpdated'), t('toast.flowUpdatedDesc'));
       } else {
         // Create new flow
         const newFlow = await flowService.createFlow(flowData);
         setCurrentFlowId(newFlow.id);
-        toast.success('Flow saved', 'Your flow has been saved successfully');
+        toast.success(t('toast.flowSaved'), t('toast.flowSavedDesc'));
       }
       
       loadSavedFlows();
     } catch (error: any) {
       console.error('Error saving flow:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Unknown error';
-      toast.error('Error saving flow', errorMessage);
+      toast.error(t('toast.saveError'), errorMessage);
     }
   };
 
@@ -787,33 +789,33 @@ export const FlowBuilder: React.FC = () => {
         setNodes(reconstructedNodes);
         setEdges(flow.edges || []);
       } catch (error) {
-        toast.error('Error loading flow', 'The file could not be loaded. Please check the file format.');
+        toast.error(t('toast.loadError'), t('toast.loadErrorDesc'));
       }
     };
     reader.readAsText(file);
   };
 
   const handleClearFlow = () => {
-    confirm('Clear Flow', 'Are you sure you want to clear the entire flow? This action cannot be undone.', () => {
+    confirm(t('dialogs.confirmClear.title'), t('dialogs.confirmClear.message'), () => {
       setNodes(createInitialNodes());
       setEdges([]);
-      setFlowName('Untitled Flow');
+      setFlowName(t('flow.untitledFlow'));
       setFlowDescription('');
       setCurrentFlowId(null);
       setExecutionResult(null);
-      toast.info('Flow cleared', 'The flow has been cleared');
+      toast.info(t('toast.flowCleared'), t('toast.flowClearedDesc'));
     });
   };
 
   const handleNewFlow = () => {
-    confirm('Create New Flow', 'Create a new flow? Any unsaved changes will be lost.', () => {
+    confirm(t('dialogs.confirmNewFlow.title'), t('dialogs.confirmNewFlow.message'), () => {
       setNodes(createInitialNodes());
       setEdges([]);
-      setFlowName('Untitled Flow');
+      setFlowName(t('flow.untitledFlow'));
       setFlowDescription('');
       setCurrentFlowId(null);
       setExecutionResult(null);
-      toast.info('New flow created', 'A new flow has been created');
+      toast.info(t('toast.newFlowCreated'), t('toast.newFlowCreatedDesc'));
     });
   };
 
@@ -938,7 +940,7 @@ export const FlowBuilder: React.FC = () => {
         <div className="modal-overlay" onClick={() => setShowFlowsList(false)}>
           <div className="modal-content flows-list-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Saved Flows</h3>
+              <h3>{t('savedFlows.title')}</h3>
               <button className="modal-close" onClick={() => setShowFlowsList(false)}>
                 <X size={20} />
               </button>
@@ -946,15 +948,15 @@ export const FlowBuilder: React.FC = () => {
             <div className="modal-body">
               <div className="flows-list">
                 {savedFlows.length === 0 ? (
-                  <p>No saved flows yet.</p>
+                  <p>{t('savedFlows.noFlows')}</p>
                 ) : (
                   savedFlows.map((flow) => (
                     <div key={flow.id} className="flow-item">
                       <div className="flow-item-info">
                         <h4>{flow.name}</h4>
-                        <p>{flow.description || 'No description'}</p>
+                        <p>{flow.description || t('savedFlows.noDescription')}</p>
                         <span className="flow-date">
-                          Created: {new Date(flow.createdAt).toLocaleDateString()}
+                          {t('savedFlows.created')}: {new Date(flow.createdAt).toLocaleDateString()}
                         </span>
                       </div>
                       <div className="flow-item-actions">
@@ -963,24 +965,24 @@ export const FlowBuilder: React.FC = () => {
                           onClick={() => handleLoadSavedFlow(flow)}
                         >
                           <Eye size={14} />
-                          Load
+                          {t('savedFlows.load')}
                         </button>
                         <button
                           className="btn-small danger"
                           onClick={() => {
-                            confirm('Delete Flow', `Are you sure you want to delete "${flow.name}"? This action cannot be undone.`, async () => {
+                            confirm(t('dialogs.confirmDelete.title'), t('dialogs.confirmDelete.message', { name: flow.name }), async () => {
                               try {
                                 await flowService.deleteFlow(flow.id);
                                 loadSavedFlows();
-                                toast.success('Flow deleted', 'The flow has been deleted successfully');
+                                toast.success(t('toast.flowDeleted'), t('toast.flowDeletedDesc'));
                               } catch (error) {
-                                toast.error('Error deleting flow', 'There was an error deleting the flow');
+                                toast.error(t('toast.deleteError'), t('toast.deleteErrorDesc'));
                               }
                             });
                           }}
                         >
                           <Trash2 size={14} />
-                          Delete
+                          {t('common.delete')}
                         </button>
                       </div>
                     </div>

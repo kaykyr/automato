@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Monitor, Shield, Eye, Maximize2 } from 'lucide-react';
 import { BrowserSettings } from '../../types/flow.types';
 import './BrowserSettingsModal.css';
@@ -16,6 +17,7 @@ export const BrowserSettingsModal: React.FC<BrowserSettingsModalProps> = ({
   settings,
   onSave,
 }) => {
+  const { t } = useTranslation();
   const [localSettings, setLocalSettings] = useState<BrowserSettings>({
     stealth: true,
     keepOpen: false,
@@ -48,10 +50,10 @@ export const BrowserSettingsModal: React.FC<BrowserSettingsModalProps> = ({
   };
 
   const presetViewports = [
-    { label: 'Desktop HD', width: 1920, height: 1080 },
-    { label: 'Desktop', width: 1280, height: 720 },
-    { label: 'Tablet', width: 768, height: 1024 },
-    { label: 'Mobile', width: 375, height: 667 },
+    { label: t('browser.viewports.desktopHD'), width: 1920, height: 1080 },
+    { label: t('browser.viewports.desktop'), width: 1280, height: 720 },
+    { label: t('browser.viewports.tablet'), width: 768, height: 1024 },
+    { label: t('browser.viewports.mobile'), width: 375, height: 667 },
   ];
 
   return (
@@ -60,7 +62,7 @@ export const BrowserSettingsModal: React.FC<BrowserSettingsModalProps> = ({
         <div className="modal-header">
           <h3>
             <Monitor size={20} />
-            Browser Settings
+            {t('browser.title')}
           </h3>
           <button className="modal-close" onClick={onClose}>
             <X size={20} />
@@ -72,7 +74,7 @@ export const BrowserSettingsModal: React.FC<BrowserSettingsModalProps> = ({
           <div className="settings-section">
             <h4>
               <Shield size={16} />
-              Security & Detection
+              {t('browser.security.title')}
             </h4>
             
             <div className="setting-item">
@@ -83,8 +85,8 @@ export const BrowserSettingsModal: React.FC<BrowserSettingsModalProps> = ({
                   onChange={(e) => setLocalSettings({ ...localSettings, stealth: e.target.checked })}
                 />
                 <span className="toggle-text">
-                  <strong>Stealth Mode</strong>
-                  <small>Evita detecção de automação (recomendado)</small>
+                  <strong>{t('browser.security.stealthMode')}</strong>
+                  <small>{t('browser.security.stealthModeDesc')}</small>
                 </span>
               </label>
             </div>
@@ -94,7 +96,7 @@ export const BrowserSettingsModal: React.FC<BrowserSettingsModalProps> = ({
           <div className="settings-section">
             <h4>
               <Eye size={16} />
-              Browser Control
+              {t('browser.control.title')}
             </h4>
             
             <div className="setting-item">
@@ -105,8 +107,8 @@ export const BrowserSettingsModal: React.FC<BrowserSettingsModalProps> = ({
                   onChange={(e) => setLocalSettings({ ...localSettings, keepOpen: e.target.checked })}
                 />
                 <span className="toggle-text">
-                  <strong>Keep Browser Open</strong>
-                  <small>Mantém o navegador aberto após conclusão</small>
+                  <strong>{t('browser.control.keepOpen')}</strong>
+                  <small>{t('browser.control.keepOpenDesc')}</small>
                 </span>
               </label>
             </div>
@@ -119,8 +121,8 @@ export const BrowserSettingsModal: React.FC<BrowserSettingsModalProps> = ({
                   onChange={(e) => setLocalSettings({ ...localSettings, headless: !e.target.checked })}
                 />
                 <span className="toggle-text">
-                  <strong>Show Browser Window</strong>
-                  <small>Exibe janela do navegador durante execução</small>
+                  <strong>{t('browser.control.showWindow')}</strong>
+                  <small>{t('browser.control.showWindowDesc')}</small>
                 </span>
               </label>
             </div>
@@ -130,7 +132,7 @@ export const BrowserSettingsModal: React.FC<BrowserSettingsModalProps> = ({
           <div className="settings-section">
             <h4>
               <Maximize2 size={16} />
-              Viewport Size
+              {t('browser.viewport.title')}
             </h4>
             
             <div className="viewport-presets">
@@ -159,7 +161,7 @@ export const BrowserSettingsModal: React.FC<BrowserSettingsModalProps> = ({
             <div className="viewport-custom">
               <div className="input-group">
                 <label>
-                  Width (px)
+                  {t('browser.viewport.width')}
                   <input
                     type="number"
                     value={localSettings.viewport?.width || 1280}
@@ -176,7 +178,7 @@ export const BrowserSettingsModal: React.FC<BrowserSettingsModalProps> = ({
                 </label>
                 <span className="separator">×</span>
                 <label>
-                  Height (px)
+                  {t('browser.viewport.height')}
                   <input
                     type="number"
                     value={localSettings.viewport?.height || 720}
@@ -197,11 +199,11 @@ export const BrowserSettingsModal: React.FC<BrowserSettingsModalProps> = ({
 
           {/* User Agent */}
           <div className="settings-section">
-            <h4>User Agent (opcional)</h4>
+            <h4>{t('browser.userAgent.title')}</h4>
             <input
               type="text"
               className="user-agent-input"
-              placeholder="Deixe vazio para usar o padrão"
+              placeholder={t('browser.userAgent.placeholder')}
               value={localSettings.userAgent || ''}
               onChange={(e) => setLocalSettings({ ...localSettings, userAgent: e.target.value })}
             />
@@ -210,10 +212,10 @@ export const BrowserSettingsModal: React.FC<BrowserSettingsModalProps> = ({
 
         <div className="modal-footer">
           <button className="btn-cancel" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </button>
           <button className="btn-save" onClick={handleSave}>
-            Save Settings
+            {t('browser.saveSettings')}
           </button>
         </div>
       </div>

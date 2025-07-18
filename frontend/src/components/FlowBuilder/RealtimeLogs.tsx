@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   Terminal, 
   ChevronDown, 
@@ -45,6 +46,7 @@ export const RealtimeLogs: React.FC<RealtimeLogsProps> = ({
   error,
   finalResults
 }) => {
+  const { t } = useTranslation();
   const [isMinimized, setIsMinimized] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
   const [filter, setFilter] = useState<'all' | 'info' | 'success' | 'warning' | 'error'>('all');
@@ -109,10 +111,10 @@ export const RealtimeLogs: React.FC<RealtimeLogsProps> = ({
       <div className="logs-header">
         <div className="logs-title">
           <Terminal size={16} />
-          <span>Execution Logs</span>
+          <span>{t('logs.title')}</span>
           {getStatusIcon()}
           <span className={`status-text ${executionStatus}`}>
-            {executionStatus.toUpperCase()}
+            {t(`logs.status.${executionStatus}`)}
           </span>
         </div>
         
@@ -120,14 +122,14 @@ export const RealtimeLogs: React.FC<RealtimeLogsProps> = ({
           <button
             className="control-btn"
             onClick={() => setIsMinimized(!isMinimized)}
-            title={isMinimized ? 'Expand' : 'Minimize'}
+            title={isMinimized ? t('logs.expand') : t('logs.minimize')}
           >
             {isMinimized ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
           <button
             className="control-btn"
             onClick={onClose}
-            title="Close"
+            title={t('common.close')}
           >
             <X size={14} />
           </button>
@@ -145,7 +147,7 @@ export const RealtimeLogs: React.FC<RealtimeLogsProps> = ({
                   className={`filter-btn ${filter === level ? 'active' : ''} ${level}`}
                   onClick={() => setFilter(level as any)}
                 >
-                  {level}
+                  {t(`logs.filters.${level}`)}
                   <span className="filter-count">
                     {level === 'all' ? logs.length : logs.filter(log => log.level === level).length}
                   </span>
@@ -160,13 +162,13 @@ export const RealtimeLogs: React.FC<RealtimeLogsProps> = ({
                   checked={autoScroll}
                   onChange={(e) => setAutoScroll(e.target.checked)}
                 />
-                Auto scroll
+                {t('logs.autoScroll')}
               </label>
               
               {currentNode && (
                 <div className="current-node">
                   <Clock size={12} />
-                  <span>Current: {currentNode}</span>
+                  <span>{t('logs.current', { node: currentNode })}</span>
                 </div>
               )}
             </div>
@@ -177,7 +179,7 @@ export const RealtimeLogs: React.FC<RealtimeLogsProps> = ({
             <div className="error-panel">
               <div className="error-header">
                 <AlertCircle size={16} className="text-red-400" />
-                <h4>Execution Error</h4>
+                <h4>{t('logs.executionError')}</h4>
               </div>
               <div className="error-content">
                 {error}
@@ -188,7 +190,7 @@ export const RealtimeLogs: React.FC<RealtimeLogsProps> = ({
           {/* Variables Panel */}
           {(Object.keys(variables).length > 0 || (finalResults && Object.keys(finalResults).length > 0)) && (
             <div className="variables-panel">
-              <h4>Variables {executionStatus === 'completed' && finalResults ? '(Final Results)' : ''}</h4>
+              <h4>{t('logs.variables')} {executionStatus === 'completed' && finalResults ? `(${t('logs.finalResults')})` : ''}</h4>
               <div className="variables-grid">
                 {Object.entries(executionStatus === 'completed' && finalResults ? finalResults : variables).map(([key, value]) => (
                   <div key={key} className="variable-item">
@@ -215,13 +217,13 @@ export const RealtimeLogs: React.FC<RealtimeLogsProps> = ({
             {filteredLogs.length === 0 ? (
               <div className="empty-logs">
                 <Terminal size={32} className="opacity-30" />
-                <p>No logs to display</p>
+                <p>{t('logs.noLogs')}</p>
                 {filter !== 'all' && (
                   <button 
                     className="clear-filter-btn"
                     onClick={() => setFilter('all')}
                   >
-                    Clear filter
+                    {t('logs.clearFilter')}
                   </button>
                 )}
               </div>
@@ -264,7 +266,7 @@ export const RealtimeLogs: React.FC<RealtimeLogsProps> = ({
                 }}
               >
                 <ChevronDown size={14} />
-                Scroll to bottom
+                {t('logs.scrollToBottom')}
               </button>
             )}
           </div>
