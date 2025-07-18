@@ -44,6 +44,20 @@
     "actions": {
       "title": "Ações"
     },
+    "modal": {
+      "addBlock": "Adicionar Bloco",
+      "searchBlocks": "Buscar blocos...",
+      "noBlocksFound": "Nenhum bloco encontrado",
+      "tryDifferentSearch": "Tente um termo de busca diferente ou categoria",
+      "categories": {
+        "allBlocks": "Todos os Blocos",
+        "actions": "Ações",
+        "data": "Dados",
+        "flowControl": "Controle de Fluxo",
+        "wait": "Esperar",
+        "conditions": "Condições"
+      }
+    },
     "nodeTypes": {
       "navigate": {
         "label": "Navegar",
@@ -152,6 +166,14 @@
       "extractUrls": {
         "label": "Extrair URLs",
         "description": "Extrair todos os atributos href dos elementos âncora"
+      },
+      "start": {
+        "label": "Iniciar",
+        "description": "Início do fluxo"
+      },
+      "response": {
+        "label": "Resposta",
+        "description": "Fim do fluxo"
       }
     },
     "config": {

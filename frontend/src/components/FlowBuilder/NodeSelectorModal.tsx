@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   MousePointer, 
   Type, 
@@ -40,42 +41,46 @@ export interface NodeType {
   icon: any;
 }
 
-const nodeTypes: NodeType[] = [
-  // Actions
-  { type: 'navigate', label: 'Navigate', description: 'Navigate to a URL', category: 'action', icon: Navigation },
-  { type: 'click', label: 'Click', description: 'Click an element', category: 'action', icon: MousePointer },
-  { type: 'type', label: 'Type', description: 'Type text into an input', category: 'action', icon: Type },
-  { type: 'scroll', label: 'Scroll', description: 'Scroll the page', category: 'action', icon: Move },
-  { type: 'hover', label: 'Hover', description: 'Hover over an element', category: 'action', icon: MousePointer2 },
-  { type: 'selectOption', label: 'Select Option', description: 'Select from dropdown', category: 'action', icon: ChevronDown },
-  { type: 'checkBox', label: 'Checkbox', description: 'Check/uncheck checkbox', category: 'action', icon: CheckSquare },
-  { type: 'keyPress', label: 'Key Press', description: 'Press keyboard keys', category: 'action', icon: Keyboard },
-  { type: 'screenshot', label: 'Screenshot', description: 'Take a screenshot', category: 'action', icon: Camera },
-  { type: 'download', label: 'Download', description: 'Download a file', category: 'action', icon: Download },
-  { type: 'uploadFile', label: 'Upload File', description: 'Upload a file', category: 'action', icon: Upload },
-  { type: 'iframe', label: 'Switch Frame', description: 'Switch to iframe', category: 'action', icon: Frame },
-  { type: 'clearCookies', label: 'Clear Cookies', description: 'Clear browser cookies', category: 'action', icon: Trash },
-  { type: 'setCookie', label: 'Set Cookie', description: 'Set a cookie', category: 'action', icon: Cookie },
-  { type: 'alert', label: 'Handle Alert', description: 'Handle browser alert', category: 'action', icon: AlertTriangle },
+const useNodeTypes = () => {
+  const { t } = useTranslation();
+  
+  return [
+    // Actions
+    { type: 'navigate', label: t('flow.nodeTypes.navigate.label'), description: t('flow.nodeTypes.navigate.description'), category: 'action', icon: Navigation },
+    { type: 'click', label: t('flow.nodeTypes.click.label'), description: t('flow.nodeTypes.click.description'), category: 'action', icon: MousePointer },
+    { type: 'type', label: t('flow.nodeTypes.type.label'), description: t('flow.nodeTypes.type.description'), category: 'action', icon: Type },
+    { type: 'scroll', label: t('flow.nodeTypes.scroll.label'), description: t('flow.nodeTypes.scroll.description'), category: 'action', icon: Move },
+    { type: 'hover', label: t('flow.nodeTypes.hover.label'), description: t('flow.nodeTypes.hover.description'), category: 'action', icon: MousePointer2 },
+    { type: 'selectOption', label: t('flow.nodeTypes.selectOption.label'), description: t('flow.nodeTypes.selectOption.description'), category: 'action', icon: ChevronDown },
+    { type: 'checkBox', label: t('flow.nodeTypes.checkBox.label'), description: t('flow.nodeTypes.checkBox.description'), category: 'action', icon: CheckSquare },
+    { type: 'keyPress', label: t('flow.nodeTypes.keyPress.label'), description: t('flow.nodeTypes.keyPress.description'), category: 'action', icon: Keyboard },
+    { type: 'screenshot', label: t('flow.nodeTypes.screenshot.label'), description: t('flow.nodeTypes.screenshot.description'), category: 'action', icon: Camera },
+    { type: 'download', label: t('flow.nodeTypes.download.label'), description: t('flow.nodeTypes.download.description'), category: 'action', icon: Download },
+    { type: 'uploadFile', label: t('flow.nodeTypes.uploadFile.label'), description: t('flow.nodeTypes.uploadFile.description'), category: 'action', icon: Upload },
+    { type: 'iframe', label: t('flow.nodeTypes.iframe.label'), description: t('flow.nodeTypes.iframe.description'), category: 'action', icon: Frame },
+    { type: 'clearCookies', label: t('flow.nodeTypes.clearCookies.label'), description: t('flow.nodeTypes.clearCookies.description'), category: 'action', icon: Trash },
+    { type: 'setCookie', label: t('flow.nodeTypes.setCookie.label'), description: t('flow.nodeTypes.setCookie.description'), category: 'action', icon: Cookie },
+    { type: 'alert', label: t('flow.nodeTypes.alert.label'), description: t('flow.nodeTypes.alert.description'), category: 'action', icon: AlertTriangle },
 
-  // Data extraction
-  { type: 'extractText', label: 'Extract Text', description: 'Extract text from element', category: 'data', icon: FileText },
-  { type: 'extractHtml', label: 'Extract HTML', description: 'Extract HTML content', category: 'data', icon: Code },
-  { type: 'extractAttribute', label: 'Extract Attribute', description: 'Extract element attribute', category: 'data', icon: Link },
-  { type: 'extractUrls', label: 'Extract URLs', description: 'Extract all URLs from page', category: 'data', icon: ExternalLink },
-  { type: 'regex', label: 'Regex Extract', description: 'Extract using regex', category: 'data', icon: Regex },
+    // Data extraction
+    { type: 'extractText', label: t('flow.nodeTypes.extractText.label'), description: t('flow.nodeTypes.extractText.description'), category: 'data', icon: FileText },
+    { type: 'extractHtml', label: t('flow.nodeTypes.extractHtml.label'), description: t('flow.nodeTypes.extractHtml.description'), category: 'data', icon: Code },
+    { type: 'extractAttribute', label: t('flow.nodeTypes.extractAttribute.label'), description: t('flow.nodeTypes.extractAttribute.description'), category: 'data', icon: Link },
+    { type: 'extractUrls', label: t('flow.nodeTypes.extractUrls.label'), description: t('flow.nodeTypes.extractUrls.description'), category: 'data', icon: ExternalLink },
+    { type: 'regex', label: t('flow.nodeTypes.regex.label'), description: t('flow.nodeTypes.regex.description'), category: 'data', icon: Regex },
 
-  // Flow control
-  { type: 'condition', label: 'Condition', description: 'Conditional branching', category: 'flow', icon: GitBranch },
-  { type: 'loop', label: 'Loop', description: 'Repeat actions', category: 'flow', icon: Repeat },
-  { type: 'setVariable', label: 'Set Variable', description: 'Store a value', category: 'flow', icon: Variable },
-  { type: 'api', label: 'API Call', description: 'Make HTTP request', category: 'flow', icon: Globe },
+    // Flow control
+    { type: 'condition', label: t('flow.nodeTypes.condition.label'), description: t('flow.nodeTypes.condition.description'), category: 'flow', icon: GitBranch },
+    { type: 'loop', label: t('flow.nodeTypes.loop.label'), description: t('flow.nodeTypes.loop.description'), category: 'flow', icon: Repeat },
+    { type: 'setVariable', label: t('flow.nodeTypes.setVariable.label'), description: t('flow.nodeTypes.setVariable.description'), category: 'flow', icon: Variable },
+    { type: 'api', label: t('flow.nodeTypes.api.label'), description: t('flow.nodeTypes.api.description'), category: 'flow', icon: Globe },
 
-  // Wait/conditions
-  { type: 'waitFor', label: 'Wait For Element', description: 'Wait for element state', category: 'wait', icon: Clock },
-  { type: 'waitTime', label: 'Wait Time', description: 'Wait for duration', category: 'wait', icon: Timer },
-  { type: 'isVisible', label: 'Check Visibility', description: 'Check if element is visible', category: 'condition', icon: Eye },
-];
+    // Wait/conditions
+    { type: 'waitFor', label: t('flow.nodeTypes.waitFor.label'), description: t('flow.nodeTypes.waitFor.description'), category: 'wait', icon: Clock },
+    { type: 'waitTime', label: t('flow.nodeTypes.waitTime.label'), description: t('flow.nodeTypes.waitTime.description'), category: 'wait', icon: Timer },
+    { type: 'isVisible', label: t('flow.nodeTypes.isVisible.label'), description: t('flow.nodeTypes.isVisible.description'), category: 'condition', icon: Eye },
+  ];
+};
 
 interface NodeSelectorModalProps {
   isOpen: boolean;
@@ -90,16 +95,18 @@ export const NodeSelectorModal: React.FC<NodeSelectorModalProps> = ({
   onNodeSelect,
   position
 }) => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const nodeTypes = useNodeTypes();
 
   const categories = [
-    { value: 'all', label: 'All Blocks', count: nodeTypes.length },
-    { value: 'action', label: 'Actions', count: nodeTypes.filter(n => n.category === 'action').length },
-    { value: 'data', label: 'Data', count: nodeTypes.filter(n => n.category === 'data').length },
-    { value: 'flow', label: 'Flow Control', count: nodeTypes.filter(n => n.category === 'flow').length },
-    { value: 'wait', label: 'Wait', count: nodeTypes.filter(n => n.category === 'wait').length },
-    { value: 'condition', label: 'Conditions', count: nodeTypes.filter(n => n.category === 'condition').length },
+    { value: 'all', label: t('flow.modal.categories.allBlocks'), count: nodeTypes.length },
+    { value: 'action', label: t('flow.modal.categories.actions'), count: nodeTypes.filter(n => n.category === 'action').length },
+    { value: 'data', label: t('flow.modal.categories.data'), count: nodeTypes.filter(n => n.category === 'data').length },
+    { value: 'flow', label: t('flow.modal.categories.flowControl'), count: nodeTypes.filter(n => n.category === 'flow').length },
+    { value: 'wait', label: t('flow.modal.categories.wait'), count: nodeTypes.filter(n => n.category === 'wait').length },
+    { value: 'condition', label: t('flow.modal.categories.conditions'), count: nodeTypes.filter(n => n.category === 'condition').length },
   ];
 
   const filteredNodes = useMemo(() => {
@@ -109,7 +116,7 @@ export const NodeSelectorModal: React.FC<NodeSelectorModalProps> = ({
       const matchesCategory = selectedCategory === 'all' || node.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [searchTerm, selectedCategory]);
+  }, [searchTerm, selectedCategory, nodeTypes]);
 
   const handleNodeSelect = (nodeType: string) => {
     onNodeSelect(nodeType);
@@ -136,7 +143,7 @@ export const NodeSelectorModal: React.FC<NodeSelectorModalProps> = ({
         style={modalStyle}
       >
         <div className="node-selector-header">
-          <h3>Add Block</h3>
+          <h3>{t('flow.modal.addBlock')}</h3>
           <button className="close-btn" onClick={onClose}>
             <X size={18} />
           </button>
@@ -147,7 +154,7 @@ export const NodeSelectorModal: React.FC<NodeSelectorModalProps> = ({
             <Search size={16} className="search-icon" />
             <input
               type="text"
-              placeholder="Search blocks..."
+              placeholder={t('flow.modal.searchBlocks')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -173,8 +180,8 @@ export const NodeSelectorModal: React.FC<NodeSelectorModalProps> = ({
           {filteredNodes.length === 0 ? (
             <div className="no-results">
               <Search size={32} className="no-results-icon" />
-              <p>No blocks found</p>
-              <span>Try a different search term or category</span>
+              <p>{t('flow.modal.noBlocksFound')}</p>
+              <span>{t('flow.modal.tryDifferentSearch')}</span>
             </div>
           ) : (
             <div className="nodes-grid">

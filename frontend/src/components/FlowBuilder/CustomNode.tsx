@@ -1,4 +1,5 @@
 import React, { memo, useState, useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Handle, Position, NodeProps } from 'reactflow';
 import { 
   MousePointer, 
@@ -113,6 +114,7 @@ interface CustomNodeData {
 }
 
 export const CustomNode = memo(({ data, selected, id }: NodeProps<CustomNodeData>) => {
+  const { t } = useTranslation();
   const Icon = iconMap[data.action] || Variable;
   const color = colorMap[data.action] || '#666';
   const [isExpanded, setIsExpanded] = useState(false);
@@ -123,6 +125,17 @@ export const CustomNode = memo(({ data, selected, id }: NodeProps<CustomNodeData
   const executionStatus = data.executionStatus || 'idle';
   const executionProgress = data.executionProgress || 0;
   const executionError = data.executionError;
+
+  // Get translated label based on action type
+  const getTranslatedLabel = () => {
+    // Use translation for all node types, including start and response
+    try {
+      return t(`flow.nodeTypes.${data.action}.label`);
+    } catch (e) {
+      // Fallback to capitalized action name
+      return data.action.charAt(0).toUpperCase() + data.action.slice(1);
+    }
+  };
 
   // Update local config when data.config changes
   useEffect(() => {
@@ -662,7 +675,7 @@ export const CustomNode = memo(({ data, selected, id }: NodeProps<CustomNodeData
       {/* Node Header */}
       <div className="node-header" style={{ backgroundColor: color }}>
         <Icon size={16} color="white" />
-        <span className="node-title">{data.label}</span>
+        <span className="node-title">{getTranslatedLabel()}</span>
         {data.action !== 'start' && data.action !== 'response' && (
           <button 
             className="node-expand-btn"
