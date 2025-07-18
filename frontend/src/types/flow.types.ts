@@ -81,6 +81,7 @@ export interface NodeConfig {
   extractHtml?: {
     selector?: string;
     variableName?: string;
+    maxLength?: number;
   };
   extractAttribute?: {
     selector?: string;

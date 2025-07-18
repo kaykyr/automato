@@ -244,6 +244,7 @@ export class FlowExecutorService {
 
         case 'extractHtml':
           const htmlSelector = this.interpolateVariables(config.extractHtml?.selector || '', variables);
+          const maxLength = config.extractHtml?.maxLength;
           let htmlContent: string;
           
           if (htmlSelector.trim() === '') {
@@ -252,6 +253,11 @@ export class FlowExecutorService {
           } else {
             // Extract HTML from specific element
             htmlContent = await page.$eval(htmlSelector, el => el.innerHTML);
+          }
+          
+          // Apply length limit if specified
+          if (maxLength && htmlContent.length > maxLength) {
+            htmlContent = htmlContent.substring(0, maxLength) + '... [truncated]';
           }
           
           return {
@@ -723,12 +729,58 @@ export class FlowExecutorService {
           let loopResult = false;
 
           if (loopType === 'forEach') {
-            // For now, just return success - actual loop implementation would be complex
-            loopResult = true;
+            // For forEach type, we need to find elements on the page and iterate through them
+            if (loopSelector) {
+              const elements = await page.$$(loopSelector);
+              if (elements && elements.length > 0) {
+                loopResult = true;
+                // Store loop metadata for special processing
+                return {
+                  success: true,
+                  condition: loopResult,
+                  nextHandle: loopResult ? 'true' : 'false',
+                  isForEachLoop: true,
+                  elements: elements,
+                  selector: loopSelector,
+                  loopConfig: {
+                    type: 'forEach',
+                    selector: loopSelector
+                  },
+                };
+              } else {
+                loopResult = false;
+              }
+            } else {
+              loopResult = false;
+            }
           } else if (loopType === 'times') {
             loopResult = true;
+            // Store loop metadata for times loop
+            return {
+              success: true,
+              condition: loopResult,
+              nextHandle: loopResult ? 'true' : 'false',
+              isTimesLoop: true,
+              times: loopTimes,
+              loopConfig: {
+                type: 'times',
+                times: loopTimes
+              },
+            };
           } else if (loopType === 'while') {
             loopResult = true;
+            // Store loop metadata for while loop
+            return {
+              success: true,
+              condition: loopResult,
+              nextHandle: loopResult ? 'true' : 'false',
+              isWhileLoop: true,
+              whileCondition: loopCondition,
+              loopConfig: {
+                type: 'while',
+                condition: loopCondition
+              },
+            };
           } else if (loopType === 'array') {
             // Handle array iteration - this will be processed by special loop execution logic
             const arrayData = variables[arrayVariable];
@@ -996,6 +1048,54 @@ export class FlowExecutorService {
       return;
     }
 
+    // Handle forEach loops - special processing for iterating through elements
+    if (result.isForEachLoop && result.elements && result.loopConfig) {
+      await this.executeForEachLoop(
+        currentNode,
+        result.elements,
+        result.loopConfig,
+        nodes,
+        edges,
+        page,
+        executionVariables,
+        executionLog,
+        execution
+      );
+      return;
+    }
+
+    // Handle times loops - special processing for repeating N times
+    if (result.isTimesLoop && result.times && result.loopConfig) {
+      await this.executeTimesLoop(
+        currentNode,
+        result.times,
+        result.loopConfig,
+        nodes,
+        edges,
+        page,
+        executionVariables,
+        executionLog,
+        execution
+      );
+      return;
+    }
+
+    // Handle while loops - special processing for conditional loops
+    if (result.isWhileLoop && result.whileCondition && result.loopConfig) {
+      await this.executeWhileLoop(
+        currentNode,
+        result.whileCondition,
+        result.loopConfig,
+        nodes,
+        edges,
+        page,
+        executionVariables,
+        executionLog,
+        execution
+      );
+      return;
+    }
+
     // Find next nodes based on the result
     let nextNodes: any[] = [];
 
@@ -1038,6 +1138,302 @@ export class FlowExecutorService {
         executionLog,
         execution
       );
+    }
+  }
+
+  private async executeForEachLoop(
+    loopNode: any,
+    elements: any[],
+    loopConfig: any,
+    nodes: any[],
+    edges: any[],
+    page: any,
+    executionVariables: Record<string, any>,
+    executionLog: any[],
+    execution: any
+  ) {
+    const { selector } = loopConfig;
+    
+    // Find next nodes connected to the loop
+    const loopNodes = edges
+      .filter(edge => edge.source === loopNode.id && edge.sourceHandle === 'loop')
+      .map(edge => nodes.find(node => node.id === edge.target))
+      .filter(node => node);
+    
+    const afterNodes = edges
+      .filter(edge => edge.source === loopNode.id && edge.sourceHandle === 'after')
+      .map(edge => nodes.find(node => node.id === edge.target))
+      .filter(node => node);
+    
+    // For backward compatibility
+    const legacyNodes = edges
+      .filter(edge => edge.source === loopNode.id && !edge.sourceHandle)
+      .map(edge => nodes.find(node => node.id === edge.target))
+      .filter(node => node);
+    
+    const nextNodes = [...loopNodes, ...legacyNodes];
+
+    if (nextNodes.length === 0) {
+      return;
+    }
+
+    // Execute the loop body for each element
+    for (let i = 0; i < elements.length; i++) {
+      const currentElement = elements[i];
+      
+      // Set current element context
+      executionVariables['currentElement'] = currentElement;
+      executionVariables['currentIndex'] = i;
+
+      // Log the loop iteration
+      executionLog.push({
+        nodeId: loopNode.id,
+        nodeName: `${loopNode.data.label} (element ${i + 1})`,
+        action: 'forEach_iteration',
+        result: {
+          success: true,
+          elementIndex: i,
+          totalElements: elements.length,
+          selector: selector
+        },
+        timestamp: new Date(),
+      });
+
+      // Execute each connected node for this iteration
+      for (const nextNode of nextNodes) {
+        await this.executeNodeRecursive(
+          nextNode,
+          nodes,
+          edges,
+          page,
+          executionVariables,
+          executionLog,
+          execution
+        );
+      }
+    }
+
+    // Clean up variables
+    delete executionVariables['currentElement'];
+    delete executionVariables['currentIndex'];
+
+    // After loop completes, execute nodes connected to the "after" handle
+    if (afterNodes.length > 0) {
+      console.log(`🔄 ForEach loop completed. Executing ${afterNodes.length} after-loop nodes...`);
+      
+      for (const afterNode of afterNodes) {
+        await this.executeNodeRecursive(
+          afterNode,
+          nodes,
+          edges,
+          page,
+          executionVariables,
+          executionLog,
+          execution
+        );
+      }
+    }
+  }
+
+  private async executeTimesLoop(
+    loopNode: any,
+    times: number,
+    loopConfig: any,
+    nodes: any[],
+    edges: any[],
+    page: any,
+    executionVariables: Record<string, any>,
+    executionLog: any[],
+    execution: any
+  ) {
+    // Find next nodes connected to the loop
+    const loopNodes = edges
+      .filter(edge => edge.source === loopNode.id && edge.sourceHandle === 'loop')
+      .map(edge => nodes.find(node => node.id === edge.target))
+      .filter(node => node);
+    
+    const afterNodes = edges
+      .filter(edge => edge.source === loopNode.id && edge.sourceHandle === 'after')
+      .map(edge => nodes.find(node => node.id === edge.target))
+      .filter(node => node);
+    
+    // For backward compatibility
+    const legacyNodes = edges
+      .filter(edge => edge.source === loopNode.id && !edge.sourceHandle)
+      .map(edge => nodes.find(node => node.id === edge.target))
+      .filter(node => node);
+    
+    const nextNodes = [...loopNodes, ...legacyNodes];
+
+    if (nextNodes.length === 0) {
+      return;
+    }
+
+    // Execute the loop body N times
+    for (let i = 0; i < times; i++) {
+      // Set current iteration context
+      executionVariables['currentIteration'] = i;
+
+      // Log the loop iteration
+      executionLog.push({
+        nodeId: loopNode.id,
+        nodeName: `${loopNode.data.label} (iteration ${i + 1})`,
+        action: 'times_iteration',
+        result: {
+          success: true,
+          iteration: i + 1,
+          totalIterations: times
+        },
+        timestamp: new Date(),
+      });
+
+      // Execute each connected node for this iteration
+      for (const nextNode of nextNodes) {
+        await this.executeNodeRecursive(
+          nextNode,
+          nodes,
+          edges,
+          page,
+          executionVariables,
+          executionLog,
+          execution
+        );
+      }
+    }
+
+    // Clean up variables
+    delete executionVariables['currentIteration'];
+
+    // After loop completes, execute nodes connected to the "after" handle
+    if (afterNodes.length > 0) {
+      console.log(`🔄 Times loop completed. Executing ${afterNodes.length} after-loop nodes...`);
+      
+      for (const afterNode of afterNodes) {
+        await this.executeNodeRecursive(
+          afterNode,
+          nodes,
+          edges,
+          page,
+          executionVariables,
+          executionLog,
+          execution
+        );
+      }
+    }
+  }
+
+  private async executeWhileLoop(
+    loopNode: any,
+    condition: string,
+    loopConfig: any,
+    nodes: any[],
+    edges: any[],
+    page: any,
+    executionVariables: Record<string, any>,
+    executionLog: any[],
+    execution: any
+  ) {
+    // Find next nodes connected to the loop
+    const loopNodes = edges
+      .filter(edge => edge.source === loopNode.id && edge.sourceHandle === 'loop')
+      .map(edge => nodes.find(node => node.id === edge.target))
+      .filter(node => node);
+    
+    const afterNodes = edges
+      .filter(edge => edge.source === loopNode.id && edge.sourceHandle === 'after')
+      .map(edge => nodes.find(node => node.id === edge.target))
+      .filter(node => node);
+    
+    // For backward compatibility
+    const legacyNodes = edges
+      .filter(edge => edge.source === loopNode.id && !edge.sourceHandle)
+      .map(edge => nodes.find(node => node.id === edge.target))
+      .filter(node => node);
+    
+    const nextNodes = [...loopNodes, ...legacyNodes];
+
+    if (nextNodes.length === 0) {
+      return;
+    }
+
+    let iteration = 0;
+    const maxIterations = 1000; // Safety limit to prevent infinite loops
+    
+    // Execute the loop body while condition is true
+    while (iteration < maxIterations) {
+      // Evaluate condition
+      const conditionResult = this.evaluateCondition(condition, executionVariables);
+      
+      if (!conditionResult) {
+        break; // Exit loop if condition is false
+      }
+
+      // Set current iteration context
+      executionVariables['currentIteration'] = iteration;
+
+      // Log the loop iteration
+      executionLog.push({
+        nodeId: loopNode.id,
+        nodeName: `${loopNode.data.label} (iteration ${iteration + 1})`,
+        action: 'while_iteration',
+        result: {
+          success: true,
+          iteration: iteration + 1,
+          condition: condition,
+          conditionResult: conditionResult
+        },
+        timestamp: new Date(),
+      });
+
+      // Execute each connected node for this iteration
+      for (const nextNode of nextNodes) {
+        await this.executeNodeRecursive(
+          nextNode,
+          nodes,
+          edges,
+          page,
+          executionVariables,
+          executionLog,
+          execution
+        );
+      }
+
+      iteration++;
+    }
+
+    // Clean up variables
+    delete executionVariables['currentIteration'];
+
+    // After loop completes, execute nodes connected to the "after" handle
+    if (afterNodes.length > 0) {
+      console.log(`🔄 While loop completed. Executing ${afterNodes.length} after-loop nodes...`);
+      
+      for (const afterNode of afterNodes) {
+        await this.executeNodeRecursive(
+          afterNode,
+          nodes,
+          edges,
+          page,
+          executionVariables,
+          executionLog,
+          execution
+        );
+      }
+    }
+  }
+
+  private evaluateCondition(condition: string, variables: Record<string, any>): boolean {
+    try {
+      // Simple condition evaluation - replace variables and evaluate
+      const interpolatedCondition = this.interpolateVariables(condition, variables);
+      
+      // Basic evaluation for simple conditions like "{{counter}} < 10"
+      // This is a simplified version - in production, you'd want a more robust evaluator
+      const result = eval(interpolatedCondition);
+      return Boolean(result);
+    } catch (error) {
+      console.error('Error evaluating condition:', error);
+      return false;
     }
   }
 

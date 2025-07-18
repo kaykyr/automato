@@ -316,6 +316,24 @@ export const CustomNode = memo(({ data, selected, id }: NodeProps<CustomNodeData
           </div>
         );
 
+      case 'extractHtml':
+        return (
+          <div className="node-config">
+            <div className="config-field">
+              <label>CSS Selector (optional):</label>
+              {renderTextInput('extractHtml.selector', 'div.content (leave empty for entire page)')}
+            </div>
+            <div className="config-field">
+              <label>Variable Name:</label>
+              {renderTextInput('extractHtml.variableName', 'contentHtml')}
+            </div>
+            <div className="config-field">
+              <label>Max Length (optional):</label>
+              {renderTextInput('extractHtml.maxLength', 'Leave empty for no limit', 'number')}
+            </div>
+          </div>
+        );
+
       case 'extractUrls':
         return (
           <div className="node-config">
@@ -583,6 +601,8 @@ export const CustomNode = memo(({ data, selected, id }: NodeProps<CustomNodeData
         return config.type?.selector || 'No selector';
       case 'extractText':
         return config.extractText?.variableName || 'No variable';
+      case 'extractHtml':
+        return config.extractHtml?.variableName || 'No variable';
       case 'extractUrls':
         return config.extractUrls?.variableName || 'extractedUrls';
       case 'loop':

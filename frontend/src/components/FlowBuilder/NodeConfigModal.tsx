@@ -333,6 +333,22 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
                 placeholder="contentHtml"
               />
             </div>
+            <div className="config-field">
+              <label>Max Length (characters, optional)</label>
+              <input
+                type="number"
+                value={config.extractHtml?.maxLength || ''}
+                onChange={(e) => setConfig({ 
+                  extractHtml: { 
+                    selector: config.extractHtml?.selector || '',
+                    variableName: config.extractHtml?.variableName || '',
+                    ...config.extractHtml, 
+                    maxLength: parseInt(e.target.value) || undefined 
+                  } 
+                })}
+                placeholder="Leave empty for no limit"
+              />
+            </div>
           </>
         );
 

@@ -1,0 +1,502 @@
+{
+  "name": "Handicap Asiático Série C - Betano",
+  "description": "Workflow otimizado para extrair dados de handicap asiático",
+  "nodes": [
+    {
+      "id": "start-node",
+      "type": "custom",
+      "position": {
+        "x": 244.27067101027077,
+        "y": 68.28819998400382
+      },
+      "data": {
+        "label": "Start",
+        "action": "start",
+        "config": {},
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "deletable": false,
+      "draggable": true,
+      "sourcePosition": "bottom",
+      "style": {
+        "background": "#16A34A",
+        "color": "white",
+        "border": "2px solid #15803D",
+        "borderRadius": "8px",
+        "fontWeight": "bold"
+      },
+      "width": 204,
+      "height": 159
+    },
+    {
+      "id": "response-node",
+      "type": "custom",
+      "position": {
+        "x": 514.7742576650446,
+        "y": 3525.816185183789
+      },
+      "data": {
+        "label": "Response",
+        "action": "response",
+        "config": {},
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "deletable": false,
+      "draggable": true,
+      "targetPosition": "top",
+      "style": {
+        "background": "#DC2626",
+        "color": "white",
+        "border": "2px solid #B91C1C",
+        "borderRadius": "8px",
+        "fontWeight": "bold"
+      },
+      "width": 204,
+      "height": 114
+    },
+    {
+      "id": "node_1752538489503_9rie3tyb2",
+      "type": "custom",
+      "position": {
+        "x": 129.388855803994,
+        "y": 286.3570682643137
+      },
+      "data": {
+        "label": "Navigate",
+        "action": "navigate",
+        "config": {
+          "navigate": {
+            "url": "https://www.betano.bet.br/sport/futebol/brasil/brasileirao-serie-c/18249/",
+            "waitUntil": "networkidle"
+          }
+        },
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "width": 450,
+      "height": 160
+    },
+    {
+      "id": "node_1752860912740_vcf1yjlcy",
+      "type": "custom",
+      "position": {
+        "x": 247.0086749256606,
+        "y": 504.79894215936304
+      },
+      "data": {
+        "label": "Verificar Modal Idade",
+        "action": "isVisible",
+        "config": {
+          "isVisible": {
+            "selector": "#age-verification-modal",
+            "timeout": "3000"
+          }
+        },
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "width": 218,
+      "height": 160
+    },
+    {
+      "id": "node_1752861902604_f6d2dwv99",
+      "type": "custom",
+      "position": {
+        "x": -64.89618385538515,
+        "y": 806.4650928332364
+      },
+      "data": {
+        "label": "Fechar Modal Idade",
+        "action": "click",
+        "config": {
+          "click": {
+            "selector": "#age-verification-modal button.button-class",
+            "waitBefore": "500"
+          }
+        },
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "width": 450,
+      "height": 160
+    },
+    {
+      "id": "node_1752868136357_1xgaxjsns",
+      "type": "custom",
+      "position": {
+        "x": 249.01746213774555,
+        "y": 1100
+      },
+      "data": {
+        "label": "Verificar Landing Modal",
+        "action": "isVisible",
+        "config": {
+          "isVisible": {
+            "selector": "#landing-page-modal > div > div.sb-modal__close > button",
+            "timeout": "3000"
+          }
+        },
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "width": 450,
+      "height": 160
+    },
+    {
+      "id": "node_1752868151031_d0kq07baz",
+      "type": "custom",
+      "position": {
+        "x": 25.28059658459449,
+        "y": 1350
+      },
+      "data": {
+        "label": "Fechar Landing Modal",
+        "action": "click",
+        "config": {
+          "click": {
+            "selector": "#landing-page-modal > div > div.sb-modal__close > button",
+            "waitBefore": "500"
+          }
+        },
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "width": 450,
+      "height": 160
+    },
+    {
+      "id": "node_wait_games_load",
+      "type": "custom",
+      "position": {
+        "x": 369.3002074282342,
+        "y": 1600
+      },
+      "data": {
+        "label": "Aguardar Carregamento",
+        "action": "waitTime",
+        "config": {
+          "waitTime": {
+            "duration": "2000"
+          }
+        },
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "width": 200,
+      "height": 160
+    },
+    {
+      "id": "node_1752868439286_912d7jelg",
+      "type": "custom",
+      "position": {
+        "x": 469.7682321557153,
+        "y": 1850
+      },
+      "data": {
+        "label": "Verificar Jogos",
+        "action": "isVisible",
+        "config": {
+          "isVisible": {
+            "selector": "div[data-qa=\"pre-event\"]",
+            "timeout": "5000"
+          }
+        },
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "width": 225,
+      "height": 160
+    },
+    {
+      "id": "node_1752869748788_ubeui3pv7",
+      "type": "custom",
+      "position": {
+        "x": 214.55385798651082,
+        "y": 2100
+      },
+      "data": {
+        "label": "Extrair URLs dos Jogos",
+        "action": "extractUrls",
+        "config": {
+          "extractUrls": {
+            "selector": "div[data-qa=\"pre-event\"]",
+            "baseUrl": "https://www.betano.bet.br/",
+            "filterDuplicates": true,
+            "variableName": "extractedUrls"
+          }
+        },
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "width": 200,
+      "height": 160
+    },
+    {
+      "id": "node_1752870457283_6u7cbggx4",
+      "type": "custom",
+      "position": {
+        "x": 177.37841922253875,
+        "y": 2350
+      },
+      "data": {
+        "label": "Loop pelos Jogos",
+        "action": "loop",
+        "config": {
+          "loop": {
+            "type": "array",
+            "arrayVariable": "extractedUrls",
+            "itemVariable": "currentUrl",
+            "indexVariable": "currentIndex"
+          }
+        },
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "width": 200,
+      "height": 160
+    },
+    {
+      "id": "node_1752870651761_arbh9p7ng",
+      "type": "custom",
+      "position": {
+        "x": 0.07702859132706408,
+        "y": 2600
+      },
+      "data": {
+        "label": "Navegar para Jogo",
+        "action": "navigate",
+        "config": {
+          "navigate": {
+            "urlVariable": "currentUrl",
+            "waitUntil": "domcontentloaded"
+          }
+        },
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "width": 304,
+      "height": 160
+    },
+    {
+      "id": "node_1752872083972_h7ffq8ljk",
+      "type": "custom",
+      "position": {
+        "x": 16.21784387716218,
+        "y": 2850
+      },
+      "data": {
+        "label": "Verificar Asian Lines",
+        "action": "isVisible",
+        "config": {
+          "isVisible": {
+            "selector": "[data-qa=\"asianlines\"]",
+            "timeout": "3000"
+          }
+        },
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "width": 210,
+      "height": 160
+    },
+    {
+      "id": "node_1752872094241_snkgbshws",
+      "type": "custom",
+      "position": {
+        "x": -32.21327731521654,
+        "y": 3100
+      },
+      "data": {
+        "label": "Clicar Asian Lines",
+        "action": "click",
+        "config": {
+          "click": {
+            "selector": "[data-qa=\"asianlines\"]",
+            "waitBefore": "500"
+          }
+        },
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "width": 210,
+      "height": 160
+    },
+    {
+      "id": "node_wait_markets",
+      "type": "custom",
+      "position": {
+        "x": -53.918979646824674,
+        "y": 3350
+      },
+      "data": {
+        "label": "Aguardar Mercados",
+        "action": "waitTime",
+        "config": {
+          "waitTime": {
+            "duration": "1000"
+          }
+        },
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "width": 200,
+      "height": 160
+    },
+    {
+      "id": "node_1752872135369_wd1rzk5c3",
+      "type": "custom",
+      "position": {
+        "x": -122.74027243730926,
+        "y": 3600
+      },
+      "data": {
+        "label": "Extrair Dados HTML",
+        "action": "extractHtml",
+        "config": {
+          "extractHtml": {
+            "selector": ".markets",
+            "variableName": "handicapData"
+          }
+        },
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "width": 200,
+      "height": 160
+    },
+    {
+      "id": "node_final_wait",
+      "type": "custom",
+      "position": {
+        "x": 518.2574478006214,
+        "y": 3313.3196411849385
+      },
+      "data": {
+        "label": "Aguardar Final",
+        "action": "waitTime",
+        "config": {
+          "waitTime": {
+            "duration": "5000"
+          }
+        },
+        "variables": {},
+        "executionStatus": "idle"
+      },
+      "width": 200,
+      "height": 115
+    }
+  ],
+  "edges": [
+    {
+      "id": "start-node-node_1752538489503_9rie3tyb2",
+      "source": "start-node",
+      "target": "node_1752538489503_9rie3tyb2",
+      "type": "default"
+    },
+    {
+      "id": "node_1752538489503_9rie3tyb2-node_1752860912740_vcf1yjlcy",
+      "source": "node_1752538489503_9rie3tyb2",
+      "target": "node_1752860912740_vcf1yjlcy",
+      "type": "default"
+    },
+    {
+      "id": "node_1752860912740_vcf1yjlcy-node_1752861902604_f6d2dwv99",
+      "source": "node_1752860912740_vcf1yjlcy",
+      "target": "node_1752861902604_f6d2dwv99",
+      "type": "default"
+    },
+    {
+      "source": "node_1752860912740_vcf1yjlcy",
+      "sourceHandle": "false",
+      "target": "node_1752868136357_1xgaxjsns",
+      "id": "reactflow__edge-node_1752860912740_vcf1yjlcyfalse-node_1752868136357_1xgaxjsns"
+    },
+    {
+      "source": "node_1752861902604_f6d2dwv99",
+      "target": "node_1752868136357_1xgaxjsns",
+      "id": "reactflow__edge-node_1752861902604_f6d2dwv99-node_1752868136357_1xgaxjsns"
+    },
+    {
+      "source": "node_1752868136357_1xgaxjsns",
+      "sourceHandle": "true",
+      "target": "node_1752868151031_d0kq07baz",
+      "id": "reactflow__edge-node_1752868136357_1xgaxjsnstrue-node_1752868151031_d0kq07baz"
+    },
+    {
+      "source": "node_1752868136357_1xgaxjsns",
+      "sourceHandle": "false",
+      "target": "node_wait_games_load",
+      "id": "reactflow__edge-node_1752868136357_1xgaxjsnsfalse-node_wait_games_load"
+    },
+    {
+      "source": "node_1752868151031_d0kq07baz",
+      "target": "node_wait_games_load",
+      "id": "reactflow__edge-node_1752868151031_d0kq07baz-node_wait_games_load"
+    },
+    {
+      "source": "node_wait_games_load",
+      "target": "node_1752868439286_912d7jelg",
+      "id": "reactflow__edge-node_wait_games_load-node_1752868439286_912d7jelg"
+    },
+    {
+      "source": "node_1752868439286_912d7jelg",
+      "target": "node_1752869748788_ubeui3pv7",
+      "id": "node_1752868439286_912d7jelg-node_1752869748788_ubeui3pv7"
+    },
+    {
+      "source": "node_1752868439286_912d7jelg",
+      "sourceHandle": "false",
+      "target": "node_final_wait",
+      "id": "reactflow__edge-node_1752868439286_912d7jelgfalse-node_final_wait"
+    },
+    {
+      "source": "node_1752869748788_ubeui3pv7",
+      "target": "node_1752870457283_6u7cbggx4",
+      "id": "reactflow__edge-node_1752869748788_ubeui3pv7-node_1752870457283_6u7cbggx4"
+    },
+    {
+      "id": "node_1752870457283_6u7cbggx4-node_1752870651761_arbh9p7ng",
+      "source": "node_1752870457283_6u7cbggx4",
+      "sourceHandle": "loop",
+      "target": "node_1752870651761_arbh9p7ng",
+      "type": "default"
+    },
+    {
+      "source": "node_1752870651761_arbh9p7ng",
+      "target": "node_1752872083972_h7ffq8ljk",
+      "id": "reactflow__edge-node_1752870651761_arbh9p7ng-node_1752872083972_h7ffq8ljk"
+    },
+    {
+      "id": "node_1752872083972_h7ffq8ljk-node_1752872094241_snkgbshws",
+      "source": "node_1752872083972_h7ffq8ljk",
+      "target": "node_1752872094241_snkgbshws",
+      "type": "default"
+    },
+    {
+      "id": "node_1752872094241_snkgbshws-node_wait_markets",
+      "source": "node_1752872094241_snkgbshws",
+      "target": "node_wait_markets",
+      "type": "default"
+    },
+    {
+      "id": "node_wait_markets-node_1752872135369_wd1rzk5c3",
+      "source": "node_wait_markets",
+      "target": "node_1752872135369_wd1rzk5c3",
+      "type": "default"
+    },
+    {
+      "source": "node_1752870457283_6u7cbggx4",
+      "sourceHandle": "after",
+      "target": "node_final_wait",
+      "id": "reactflow__edge-node_1752870457283_6u7cbggx4after-node_final_wait"
+    },
+    {
+      "source": "node_final_wait",
+      "target": "response-node",
+      "id": "reactflow__edge-node_final_wait-response-node"
+    }
+  ],
+  "timestamp": "2025-07-18T21:49:27.723Z"
+}
