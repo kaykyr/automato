@@ -180,9 +180,6 @@ export class FlowExecutorService {
             await page.waitForTimeout(waitBefore);
           }
           
-          // Check for common modals that might block clicks
-          await this.handleBlockingModals(page);
-          
           await page.click(clickSelector);
           return { success: true, selector: clickSelector };
 
@@ -247,7 +244,16 @@ export class FlowExecutorService {
 
         case 'extractHtml':
           const htmlSelector = this.interpolateVariables(config.extractHtml?.selector || '', variables);
-          const htmlContent = await page.$eval(htmlSelector, el => el.innerHTML);
+          let htmlContent: string;
+          
+          if (htmlSelector.trim() === '') {
+            // If no selector is provided, extract entire page HTML
+            htmlContent = await page.content();
+          } else {
+            // Extract HTML from specific element
+            htmlContent = await page.$eval(htmlSelector, el => el.innerHTML);
+          }
+          
           return {
             success: true,
             variable: {
@@ -1168,45 +1174,126 @@ export class FlowExecutorService {
             if (isVisible) {
               console.log(`🚪 Detected blocking modal: ${selector}`);
               
-              // Try common close button patterns
+              // Try common close button patterns with more flexible selectors
               const closeSelectors = [
+                // Specific patterns first
                 `${selector} [data-qa="close"]`,
                 `${selector} .close-button`,
                 `${selector} .btn-close`,
                 `${selector} [aria-label="Close"]`,
                 `${selector} .modal-close`,
+                // Text-based selectors (more flexible)
+                `${selector} button:has-text("Tenho mais de 18 anos")`,
+                `${selector} button:has-text("Sim, tenho mais de 18 anos")`,
+                `${selector} button:has-text("Aceitar")`,
+                `${selector} button:has-text("Concordo")`,
+                `${selector} button:has-text("OK")`,
+                `${selector} button:has-text("Sim")`,
                 `${selector} button:has-text("Fechar")`,
                 `${selector} button:has-text("Close")`,
                 `${selector} button:has-text("×")`,
                 `${selector} button:has-text("X")`,
-                `${selector} button:has-text("Concordo")`,
-                `${selector} button:has-text("Aceitar")`,
-                `${selector} button:has-text("OK")`,
-                `${selector} button:has-text("Sim")`,
-                `${selector} button:has-text("Tenho mais de 18 anos")`
+                // Generic button patterns (fallback)
+                `${selector} button.button-class`,
+                `${selector} button[class*="button"]`,
+                `${selector} .tw-bg-n-22-licorice`, // From the specific error
+                `${selector} button`
               ];
 
               let closed = false;
+              
+              // First, let's see what buttons are available in the modal
+              try {
+                const allButtons = await page.$$(`${selector} button`);
+                console.log(`🔍 Found ${allButtons.length} buttons in modal`);
+                
+                for (let i = 0; i < allButtons.length; i++) {
+                  const button = allButtons[i];
+                  const buttonText = await button.textContent();
+                  const isVisible = await button.isVisible();
+                  console.log(`  Button ${i + 1}: "${buttonText}" (visible: ${isVisible})`);
+                }
+              } catch (error) {
+                console.log(`  Could not analyze buttons: ${error.message}`);
+              }
+              
               for (const closeSelector of closeSelectors) {
                 try {
                   const closeButton = await page.$(closeSelector);
                   if (closeButton && await closeButton.isVisible()) {
                     console.log(`🔘 Clicking close button: ${closeSelector}`);
-                    await closeButton.click();
-                    await page.waitForTimeout(500); // Wait for modal to close
-                    closed = true;
-                    break;
+                    await closeButton.click({ timeout: 10000 });
+                    await page.waitForTimeout(1000); // Wait for modal to close
+                    
+                    // Check if modal is still visible
+                    const modalStillVisible = await modal.isVisible();
+                    if (!modalStillVisible) {
+                      console.log(`✅ Modal closed successfully`);
+                      closed = true;
+                      break;
+                    } else {
+                      console.log(`⚠️  Modal still visible after click`);
+                    }
                   }
                 } catch (error) {
-                  // Continue to next close selector
+                  console.log(`  Failed to click ${closeSelector}: ${error.message}`);
                 }
               }
 
               if (!closed) {
-                // Try pressing Escape key
-                console.log(`⎋ Trying to close modal with Escape key`);
-                await page.keyboard.press('Escape');
-                await page.waitForTimeout(500);
+                console.log(`🔧 Trying alternative modal close strategies...`);
+                
+                // Strategy 1: Try pressing Escape key
+                try {
+                  console.log(`⎋ Trying to close modal with Escape key`);
+                  await page.keyboard.press('Escape');
+                  await page.waitForTimeout(1000);
+                  
+                  const modalStillVisible = await modal.isVisible();
+                  if (!modalStillVisible) {
+                    console.log(`✅ Modal closed with Escape key`);
+                    closed = true;
+                  }
+                } catch (error) {
+                  console.log(`  Escape key failed: ${error.message}`);
+                }
+                
+                // Strategy 2: Try clicking outside the modal
+                if (!closed) {
+                  try {
+                    console.log(`🖱️ Trying to close modal by clicking outside`);
+                    await page.click('body', { position: { x: 10, y: 10 } });
+                    await page.waitForTimeout(1000);
+                    
+                    const modalStillVisible = await modal.isVisible();
+                    if (!modalStillVisible) {
+                      console.log(`✅ Modal closed by clicking outside`);
+                      closed = true;
+                    }
+                  } catch (error) {
+                    console.log(`  Click outside failed: ${error.message}`);
+                  }
+                }
+                
+                // Strategy 3: Try force-clicking the first visible button
+                if (!closed) {
+                  try {
+                    console.log(`🎯 Trying to click first visible button in modal`);
+                    const firstButton = await page.$(`${selector} button:visible`);
+                    if (firstButton) {
+                      await firstButton.click({ force: true, timeout: 10000 });
+                      await page.waitForTimeout(1000);
+                      
+                      const modalStillVisible = await modal.isVisible();
+                      if (!modalStillVisible) {
+                        console.log(`✅ Modal closed by force-clicking first button`);
+                        closed = true;
+                      }
+                    }
+                  } catch (error) {
+                    console.log(`  Force click failed: ${error.message}`);
+                  }
+                }
               }
             }
           }

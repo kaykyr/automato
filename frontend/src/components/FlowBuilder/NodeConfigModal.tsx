@@ -308,14 +308,14 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = ({ node, onClose,
         return (
           <>
             <div className="config-field">
-              <label>{t('flow.config.cssSelector')}</label>
+              <label>CSS Selector (optional)</label>
               <input
                 type="text"
                 value={config.extractHtml?.selector || ''}
                 onChange={(e) => setConfig({ 
                   extractHtml: { ...config.extractHtml, selector: e.target.value } 
                 })}
-                placeholder="div.content"
+                placeholder="div.content (leave empty for entire page)"
               />
             </div>
             <div className="config-field">
