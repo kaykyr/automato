@@ -22,7 +22,7 @@ export const flowService = {
   // Get all flows
   async getAllFlows() {
     const response = await axios.get(`${API_BASE}/flows`);
-    return response.data;
+    return response.data || [];
   },
 
   // Get a specific flow

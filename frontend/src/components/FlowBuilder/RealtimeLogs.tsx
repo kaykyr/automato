@@ -31,6 +31,8 @@ interface RealtimeLogsProps {
   executionStatus: 'idle' | 'running' | 'completed' | 'failed';
   currentNode?: string;
   variables?: Record<string, any>;
+  error?: string;
+  finalResults?: Record<string, any>;
 }
 
 export const RealtimeLogs: React.FC<RealtimeLogsProps> = ({
@@ -39,7 +41,9 @@ export const RealtimeLogs: React.FC<RealtimeLogsProps> = ({
   logs,
   executionStatus,
   currentNode,
-  variables = {}
+  variables = {},
+  error,
+  finalResults
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
@@ -168,12 +172,25 @@ export const RealtimeLogs: React.FC<RealtimeLogsProps> = ({
             </div>
           </div>
 
+          {/* Error Panel */}
+          {error && (
+            <div className="error-panel">
+              <div className="error-header">
+                <AlertCircle size={16} className="text-red-400" />
+                <h4>Execution Error</h4>
+              </div>
+              <div className="error-content">
+                {error}
+              </div>
+            </div>
+          )}
+
           {/* Variables Panel */}
-          {Object.keys(variables).length > 0 && (
+          {(Object.keys(variables).length > 0 || (finalResults && Object.keys(finalResults).length > 0)) && (
             <div className="variables-panel">
-              <h4>Variables</h4>
+              <h4>Variables {executionStatus === 'completed' && finalResults ? '(Final Results)' : ''}</h4>
               <div className="variables-grid">
-                {Object.entries(variables).map(([key, value]) => (
+                {Object.entries(executionStatus === 'completed' && finalResults ? finalResults : variables).map(([key, value]) => (
                   <div key={key} className="variable-item">
                     <span className="variable-key">{key}:</span>
                     <span className="variable-value">

@@ -134,7 +134,8 @@ export class FlowExecutorService {
         case 'click':
           const clickSelector = this.interpolateVariables(config.click?.selector || '', variables);
           if (config.click?.waitBefore) {
-            await page.waitForTimeout(config.click.waitBefore);
+            const waitBefore = parseInt(String(config.click.waitBefore)) || 0;
+            await page.waitForTimeout(waitBefore);
           }
           await page.click(clickSelector);
           return { success: true, selector: clickSelector };
@@ -153,14 +154,15 @@ export class FlowExecutorService {
           if (config.type?.clear) {
             await page.fill(typeSelector, '');
           }
-          await page.type(typeSelector, text, { delay: config.type?.delay || 0 });
+          const typeDelay = parseInt(String(config.type?.delay)) || 0;
+          await page.type(typeSelector, text, { delay: typeDelay });
           return { success: true, selector: typeSelector, text };
 
         case 'waitFor':
           const waitSelector = this.interpolateVariables(config.waitFor?.selector || '', variables);
           await page.waitForSelector(waitSelector, {
             state: config.waitFor?.state || 'visible',
-            timeout: config.waitFor?.timeout || 30000,
+            timeout: parseInt(String(config.waitFor?.timeout)) || 30000,
           });
           return { success: true, selector: waitSelector };
 
@@ -249,7 +251,8 @@ export class FlowExecutorService {
           break;
 
         case 'waitTime':
-          await page.waitForTimeout(config.waitTime?.duration || 1000);
+          const duration = parseInt(String(config.waitTime?.duration)) || 1000;
+          await page.waitForTimeout(duration);
           return { success: true };
 
         case 'setVariable':
@@ -326,7 +329,7 @@ export class FlowExecutorService {
 
         case 'isVisible':
           const visibilitySelector = this.interpolateVariables(config.isVisible?.selector || '', variables);
-          const timeout = config.isVisible?.timeout || 5000;
+          const timeout = parseInt(String(config.isVisible?.timeout)) || 5000;
           let isVisible = false;
           
           try {
@@ -359,7 +362,8 @@ export class FlowExecutorService {
           const hoverSelector = this.interpolateVariables(config.hover?.selector || '', variables);
           await page.hover(hoverSelector);
           if (config.hover?.duration) {
-            await page.waitForTimeout(config.hover.duration);
+            const hoverDuration = parseInt(String(config.hover.duration)) || 0;
+            await page.waitForTimeout(hoverDuration);
           }
           return { success: true, selector: hoverSelector };
 

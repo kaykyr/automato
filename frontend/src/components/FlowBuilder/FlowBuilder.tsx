@@ -201,6 +201,8 @@ export const FlowBuilder: React.FC = () => {
     },
     
     onExecutionStatus: (data: ExecutionStatusData) => {
+      if (!data?.status) return;
+      
       setExecutionResult((prev: any) => prev ? { ...prev, status: data.status.status } : null);
       
       // Add status log
@@ -234,13 +236,15 @@ export const FlowBuilder: React.FC = () => {
     },
     
     onExecutionComplete: (data: ExecutionStatusData) => {
+      if (!data?.status) return;
+      
       setIsExecuting(false);
       setExecutionResult((prev: any) => prev ? {
         ...prev,
         status: 'completed',
-        results: data.status.results,
-        completedAt: data.status.completedAt,
-        executionLog: data.status.executionLog
+        results: data.status?.results || {},
+        completedAt: data.status?.completedAt,
+        executionLog: data.status?.executionLog || []
       } : null);
       
       // Reset node states
@@ -250,13 +254,15 @@ export const FlowBuilder: React.FC = () => {
     },
     
     onExecutionError: (data: ExecutionStatusData) => {
+      if (!data?.status) return;
+      
       setIsExecuting(false);
       setExecutionResult((prev: any) => prev ? {
         ...prev,
         status: 'failed',
-        error: data.status.error,
-        completedAt: data.status.completedAt,
-        executionLog: data.status.executionLog
+        error: data.status?.error,
+        completedAt: data.status?.completedAt,
+        executionLog: data.status?.executionLog || []
       } : null);
       
       // Reset node states
@@ -539,17 +545,24 @@ export const FlowBuilder: React.FC = () => {
       
       // Backup polling for execution status (in case WebSocket fails)
       const pollExecution = async () => {
-        const status = await flowService.getExecution(execution.id);
-        setExecutionResult(status);
-        
-        if (status.status === 'running' || status.status === 'pending') {
-          setTimeout(pollExecution, 5000); // Poll every 5 seconds as backup
-        } else {
-          setIsExecuting(false);
-          // Leave WebSocket room
-          if (isConnected) {
-            leaveFlowExecution(execution.id, currentFlowId);
+        try {
+          const status = await flowService.getExecution(execution.id);
+          if (status) {
+            setExecutionResult(status);
+            
+            if (status.status === 'running' || status.status === 'pending') {
+              setTimeout(pollExecution, 5000); // Poll every 5 seconds as backup
+            } else {
+              setIsExecuting(false);
+              // Leave WebSocket room
+              if (isConnected) {
+                leaveFlowExecution(execution.id, currentFlowId);
+              }
+            }
           }
+        } catch (error) {
+          console.error('Error polling execution status:', error);
+          setIsExecuting(false);
         }
       };
       
@@ -995,63 +1008,6 @@ export const FlowBuilder: React.FC = () => {
         onSave={(settings) => setApiConfig(settings)}
       />
 
-      {/* Execution Result Panel */}
-      {executionResult && (
-        <div className="execution-panel">
-          <div className="execution-header">
-            <h3>Execution Result</h3>
-            <button 
-              className="close-btn"
-              onClick={() => setExecutionResult(null)}
-            >
-              ×
-            </button>
-          </div>
-          <div className="execution-content">
-            <div className="execution-status">
-              <strong>Status:</strong> 
-              <span className={`status-badge ${executionResult.status}`}>
-                {executionResult.status}
-              </span>
-            </div>
-            {executionResult.currentNode && (
-              <div className="execution-current">
-                <strong>Current Node:</strong> {executionResult.currentNode}
-              </div>
-            )}
-            {executionResult.error && (
-              <div className="execution-error">
-                <strong>Error:</strong> {executionResult.error}
-              </div>
-            )}
-            {executionResult.results && Object.keys(executionResult.results).length > 0 && (
-              <div className="execution-results">
-                <strong>Variables:</strong>
-                <pre>{JSON.stringify(executionResult.results, null, 2)}</pre>
-              </div>
-            )}
-            {executionResult.executionLog && executionResult.executionLog.length > 0 && (
-              <div className="execution-log">
-                <strong>Execution Log:</strong>
-                <div className="log-entries">
-                  {executionResult.executionLog.map((log: any, index: number) => (
-                    <div key={index} className="log-entry">
-                      <span className="log-time">
-                        {new Date(log.timestamp).toLocaleTimeString()}
-                      </span>
-                      <span className="log-node">{log.nodeName}</span>
-                      <span className="log-action">{log.action}</span>
-                      {log.result.error && (
-                        <span className="log-error">{log.result.error}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
       
       {/* Toast notifications */}
       <ToastContainer toasts={toasts} onClose={removeToast} />
@@ -1077,6 +1033,8 @@ export const FlowBuilder: React.FC = () => {
         executionStatus={isExecuting ? 'running' : executionResult?.status === 'completed' ? 'completed' : executionResult?.status === 'failed' ? 'failed' : 'idle'}
         currentNode={executionResult?.currentNode}
         variables={flowVariables}
+        error={executionResult?.error}
+        finalResults={executionResult?.results}
       />
       
       {/* Performance Metrics (Development) */}
