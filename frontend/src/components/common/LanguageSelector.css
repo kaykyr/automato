@@ -1,0 +1,139 @@
+.language-selector {
+  position: relative;
+  display: inline-block;
+}
+
+.language-selector-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: 6px;
+  background: var(--color-background, white);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  min-width: 80px;
+  height: 36px;
+  box-sizing: border-box;
+}
+
+.language-selector-trigger:hover {
+  border-color: var(--color-primary, #4CAF50);
+  background: var(--color-background-secondary, #f9f9f9);
+}
+
+.current-language {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.flag {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.label {
+  color: var(--color-text-primary, #333);
+  font-weight: 500;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.language-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--color-background, white);
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: all 0.2s ease;
+  z-index: 1000;
+  margin-top: 2px;
+  min-width: 110px;
+}
+
+.language-selector:hover .language-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.language-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 12px;
+  border-radius: 2px;
+  margin: 1px;
+  text-align: left;
+}
+
+.language-option:hover {
+  background: var(--color-background-secondary, #f0f0f0);
+}
+
+.language-option.active {
+  background: var(--color-primary-light, #e8f5e8);
+  color: var(--color-primary, #4CAF50);
+}
+
+.language-option .flag {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.language-option .label {
+  color: inherit;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.language-option.active .label {
+  color: var(--color-primary, #4CAF50);
+}
+
+/* Dark mode support */
+.dark .language-selector-trigger {
+  background: #333;
+  border-color: #555;
+  color: white;
+}
+
+.dark .language-selector-trigger:hover {
+  border-color: #4CAF50;
+  background: #444;
+}
+
+.dark .label {
+  color: white;
+}
+
+.dark .language-dropdown {
+  background: #333;
+  border-color: #555;
+}
+
+.dark .language-option:hover {
+  background: #444;
+}
+
+.dark .language-option.active {
+  background: #2d4a2d;
+}

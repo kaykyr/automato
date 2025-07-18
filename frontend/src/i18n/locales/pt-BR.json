@@ -1,0 +1,231 @@
+{
+  "common": {
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "close": "Fechar",
+    "ok": "OK",
+    "yes": "Sim",
+    "no": "Não",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "warning": "Aviso",
+    "info": "Informação"
+  },
+  "flow": {
+    "header": {
+      "enterFlowName": "Digite o nome do fluxo",
+      "addDescription": "Adicionar descrição",
+      "addDescriptionOptional": "Adicionar descrição (opcional)",
+      "connected": "Conectado",
+      "disconnected": "Desconectado",
+      "new": "Novo",
+      "browse": "Navegar",
+      "save": "Salvar",
+      "update": "Atualizar",
+      "logs": "Logs",
+      "run": "Executar",
+      "running": "Executando...",
+      "newFlow": "Novo Fluxo",
+      "browseFlows": "Navegar Fluxos",
+      "updateFlow": "Atualizar Fluxo",
+      "saveFlow": "Salvar Fluxo",
+      "toggleLogs": "Alternar Logs",
+      "runFlow": "Executar Fluxo",
+      "browserSettings": "Configurações do Navegador",
+      "apiSettings": "Configurações da API",
+      "exportFlow": "Exportar Fluxo",
+      "importFlow": "Importar Fluxo",
+      "clearFlow": "Limpar Fluxo",
+      "moreOptions": "Mais opções"
+    },
+    "actions": {
+      "title": "Ações"
+    },
+    "nodeTypes": {
+      "navigate": {
+        "label": "Navegar",
+        "description": "Navegar para URL"
+      },
+      "click": {
+        "label": "Clicar",
+        "description": "Clicar no elemento"
+      },
+      "type": {
+        "label": "Digitar",
+        "description": "Digitar texto no campo"
+      },
+      "waitFor": {
+        "label": "Aguardar",
+        "description": "Aguardar elemento"
+      },
+      "scroll": {
+        "label": "Rolar",
+        "description": "Rolar página ou elemento"
+      },
+      "extractText": {
+        "label": "Extrair Texto",
+        "description": "Extrair conteúdo de texto"
+      },
+      "extractHtml": {
+        "label": "Extrair HTML",
+        "description": "Extrair conteúdo HTML"
+      },
+      "screenshot": {
+        "label": "Captura de Tela",
+        "description": "Tirar captura de tela"
+      },
+      "condition": {
+        "label": "Condição",
+        "description": "Lógica condicional"
+      },
+      "loop": {
+        "label": "Laço",
+        "description": "Repetir através de elementos"
+      },
+      "setVariable": {
+        "label": "Definir Variável",
+        "description": "Definir uma variável"
+      },
+      "api": {
+        "label": "Chamada API",
+        "description": "Fazer requisição API"
+      },
+      "isVisible": {
+        "label": "Está Visível",
+        "description": "Verificar se elemento está visível"
+      },
+      "waitTime": {
+        "label": "Aguardar Tempo",
+        "description": "Aguardar tempo específico"
+      },
+      "extractAttribute": {
+        "label": "Extrair Atributo",
+        "description": "Extrair atributo do elemento"
+      },
+      "hover": {
+        "label": "Pairar",
+        "description": "Pairar sobre elemento"
+      },
+      "selectOption": {
+        "label": "Selecionar Opção",
+        "description": "Selecionar opção do dropdown"
+      },
+      "checkBox": {
+        "label": "Caixa de Seleção",
+        "description": "Marcar/desmarcar caixa de seleção"
+      },
+      "keyPress": {
+        "label": "Pressionar Tecla",
+        "description": "Pressionar teclas do teclado"
+      },
+      "iframe": {
+        "label": "Alternar iframe",
+        "description": "Alternar para contexto iframe"
+      },
+      "download": {
+        "label": "Baixar",
+        "description": "Baixar arquivo"
+      },
+      "uploadFile": {
+        "label": "Enviar Arquivo",
+        "description": "Enviar arquivo para entrada"
+      },
+      "clearCookies": {
+        "label": "Limpar Cookies",
+        "description": "Limpar cookies do navegador"
+      },
+      "setCookie": {
+        "label": "Definir Cookie",
+        "description": "Definir cookie do navegador"
+      },
+      "alert": {
+        "label": "Lidar com Alerta",
+        "description": "Lidar com alertas do navegador"
+      },
+      "regex": {
+        "label": "Extrair Regex",
+        "description": "Extrair dados usando expressões regulares"
+      },
+      "extractUrls": {
+        "label": "Extrair URLs",
+        "description": "Extrair todos os atributos href dos elementos âncora"
+      }
+    },
+    "config": {
+      "url": "URL",
+      "cssSelector": "Seletor CSS",
+      "text": "Texto",
+      "timeout": "Tempo Limite",
+      "value": "Valor",
+      "attribute": "Atributo",
+      "filePath": "Caminho do Arquivo",
+      "variableName": "Nome da Variável",
+      "condition": "Condição",
+      "iterations": "Iterações",
+      "endpoint": "Endpoint",
+      "method": "Método",
+      "headers": "Cabeçalhos",
+      "body": "Corpo",
+      "cookieName": "Nome do Cookie",
+      "cookieValue": "Valor do Cookie",
+      "alertAction": "Ação do Alerta",
+      "regexPattern": "Padrão Regex",
+      "placeholder": {
+        "url": "https://exemplo.com",
+        "cssSelector": "#id-do-elemento",
+        "text": "Digite o texto aqui",
+        "timeout": "5000",
+        "value": "Digite o valor",
+        "attribute": "href",
+        "filePath": "/caminho/para/arquivo",
+        "variableName": "minhaVariavel",
+        "condition": "element.text === 'valor'",
+        "iterations": "10",
+        "endpoint": "https://api.exemplo.com/dados",
+        "method": "GET",
+        "headers": "Content-Type: application/json",
+        "body": "{}",
+        "cookieName": "sessionId",
+        "cookieValue": "abc123",
+        "alertAction": "accept",
+        "regexPattern": "\\d+"
+      }
+    }
+  },
+  "language": {
+    "selector": {
+      "title": "Idioma",
+      "english": "English",
+      "portuguese": "Português (Brasil)"
+    }
+  },
+  "dialogs": {
+    "confirmDelete": {
+      "title": "Confirmar Exclusão",
+      "message": "Tem certeza que deseja excluir este item?",
+      "confirm": "Excluir",
+      "cancel": "Cancelar"
+    },
+    "confirmClear": {
+      "title": "Limpar Fluxo",
+      "message": "Tem certeza que deseja limpar todo o fluxo? Esta ação não pode ser desfeita.",
+      "confirm": "Limpar",
+      "cancel": "Cancelar"
+    }
+  },
+  "toast": {
+    "flowSaved": "Fluxo salvo com sucesso",
+    "flowDeleted": "Fluxo excluído com sucesso",
+    "flowCleared": "Fluxo limpo com sucesso",
+    "flowExported": "Fluxo exportado com sucesso",
+    "flowImported": "Fluxo importado com sucesso",
+    "executionStarted": "Execução do fluxo iniciada",
+    "executionCompleted": "Execução do fluxo concluída",
+    "executionFailed": "Execução do fluxo falhou",
+    "connectionLost": "Conexão perdida com o servidor",
+    "connectionRestored": "Conexão restaurada com o servidor"
+  }
+}

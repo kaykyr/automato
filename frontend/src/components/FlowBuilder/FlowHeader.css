@@ -1,5 +1,39 @@
 @import '../../styles/variables.css';
 
+.header-language-selector {
+  margin-right: var(--spacing-sm, 8px);
+}
+
+.header-language-selector .language-selector-trigger {
+  padding: var(--spacing-sm, 8px) var(--spacing-md, 12px);
+  font-size: var(--font-size-sm, 14px);
+  min-width: 80px;
+  height: 36px;
+  background: var(--color-background);
+  border-color: var(--color-border);
+  box-shadow: none;
+  border-radius: var(--radius-md, 6px);
+}
+
+.header-language-selector .language-selector-trigger:hover {
+  border-color: var(--color-primary);
+  background: var(--color-background-secondary);
+}
+
+.header-language-selector .current-language {
+  gap: var(--spacing-xs, 4px);
+}
+
+.header-language-selector .flag {
+  font-size: 14px;
+}
+
+.header-language-selector .label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
 .flow-header {
   background: var(--color-background-secondary);
   border-bottom: 1px solid var(--color-border);
@@ -316,6 +350,9 @@
 /* More Actions */
 .more-actions {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm, 8px);
 }
 
 .more-menu {

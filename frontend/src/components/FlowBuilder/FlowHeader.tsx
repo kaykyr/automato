@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   Play, 
   Square, 
@@ -15,6 +16,7 @@ import {
   Plus,
   Edit3
 } from 'lucide-react';
+import { LanguageSelector } from '../common/LanguageSelector';
 import './FlowHeader.css';
 
 interface FlowHeaderProps {
@@ -60,6 +62,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({
   onShowBrowserSettings,
   onShowApiSettings,
 }) => {
+  const { t } = useTranslation();
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
@@ -94,7 +97,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({
                 onKeyDown={(e) => e.key === 'Enter' && handleNameSave()}
                 className="flow-name-edit"
                 autoFocus
-                placeholder="Enter flow name"
+                placeholder={t('flow.header.enterFlowName')}
               />
             ) : (
               <div className="flow-name-display" onClick={handleNameEdit}>
@@ -114,11 +117,11 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({
                 onKeyDown={(e) => e.key === 'Enter' && handleDescriptionSave()}
                 className="flow-description-edit"
                 autoFocus
-                placeholder="Add description (optional)"
+                placeholder={t('flow.header.addDescriptionOptional')}
               />
             ) : (
               <div className="flow-description-display" onClick={handleDescriptionEdit}>
-                <span>{flowDescription || 'Add description'}</span>
+                <span>{flowDescription || t('flow.header.addDescription')}</span>
                 <Edit3 size={12} className="edit-icon" />
               </div>
             )}
@@ -128,7 +131,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({
         <div className="flow-status-indicators">
           <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
             <div className="status-dot" />
-            <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
+            <span>{isConnected ? t('flow.header.connected') : t('flow.header.disconnected')}</span>
           </div>
           
           {currentFlowId && (
@@ -144,37 +147,37 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({
           <button
             className="header-btn secondary"
             onClick={onNewFlow}
-            title="New Flow"
+            title={t('flow.header.newFlow')}
           >
             <Plus size={16} />
-            <span>New</span>
+            <span>{t('flow.header.new')}</span>
           </button>
 
           <button
             className="header-btn secondary"
             onClick={onBrowseFlows}
-            title="Browse Flows"
+            title={t('flow.header.browseFlows')}
           >
             <FolderOpen size={16} />
-            <span>Browse</span>
+            <span>{t('flow.header.browse')}</span>
           </button>
 
           <button
             className="header-btn secondary"
             onClick={onSaveFlow}
-            title={currentFlowId ? 'Update Flow' : 'Save Flow'}
+            title={currentFlowId ? t('flow.header.updateFlow') : t('flow.header.saveFlow')}
           >
             <Save size={16} />
-            <span>{currentFlowId ? 'Update' : 'Save'}</span>
+            <span>{currentFlowId ? t('flow.header.update') : t('flow.header.save')}</span>
           </button>
 
           <button
             className={`header-btn secondary ${showLogs ? 'active' : ''}`}
             onClick={onToggleLogs}
-            title="Toggle Logs"
+            title={t('flow.header.toggleLogs')}
           >
             {showLogs ? <EyeOff size={16} /> : <Eye size={16} />}
-            <span>Logs</span>
+            <span>{t('flow.header.logs')}</span>
             {executionLogs.length > 0 && (
               <span className="logs-count">{executionLogs.length}</span>
             )}
@@ -184,27 +187,29 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({
             className={`header-btn primary ${isExecuting ? 'executing' : ''}`}
             onClick={onRunFlow}
             disabled={isExecuting}
-            title={isExecuting ? 'Running...' : 'Run Flow'}
+            title={isExecuting ? t('flow.header.running') : t('flow.header.runFlow')}
           >
             {isExecuting ? (
               <>
                 <Square size={16} />
-                <span>Running...</span>
+                <span>{t('flow.header.running')}</span>
               </>
             ) : (
               <>
                 <Play size={16} />
-                <span>Run</span>
+                <span>{t('flow.header.run')}</span>
               </>
             )}
           </button>
         </div>
 
         <div className="more-actions">
+          <LanguageSelector className="header-language-selector" />
+          
           <button
             className="header-btn icon-only"
             onClick={() => setShowMoreMenu(!showMoreMenu)}
-            title="More options"
+            title={t('flow.header.moreOptions')}
           >
             <MoreHorizontal size={16} />
           </button>
@@ -213,24 +218,24 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({
             <div className="more-menu">
               <button onClick={onShowBrowserSettings} className="menu-item">
                 <Monitor size={16} />
-                <span>Browser Settings</span>
+                <span>{t('flow.header.browserSettings')}</span>
               </button>
               
               <button onClick={onShowApiSettings} className="menu-item">
                 <Globe size={16} />
-                <span>API Settings</span>
+                <span>{t('flow.header.apiSettings')}</span>
               </button>
               
               <div className="menu-divider" />
               
               <button onClick={onExportFlow} className="menu-item">
                 <Download size={16} />
-                <span>Export Flow</span>
+                <span>{t('flow.header.exportFlow')}</span>
               </button>
               
               <label className="menu-item">
                 <Upload size={16} />
-                <span>Import Flow</span>
+                <span>{t('flow.header.importFlow')}</span>
                 <input
                   type="file"
                   accept=".json"
@@ -243,7 +248,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({
               
               <button onClick={onClearFlow} className="menu-item danger">
                 <Trash2 size={16} />
-                <span>Clear Flow</span>
+                <span>{t('flow.header.clearFlow')}</span>
               </button>
             </div>
           )}
