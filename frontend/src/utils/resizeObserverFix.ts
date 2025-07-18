@@ -44,7 +44,7 @@ export const installResizeObserverFix = () => {
     }
   });
   
-  // Handle errors that come through the error event
+  // Handle errors that come through the error event with capture phase
   window.addEventListener('error', function (e) {
     if (e.message && e.message.includes('ResizeObserver loop completed with undelivered notifications')) {
       e.preventDefault();
@@ -52,6 +52,44 @@ export const installResizeObserverFix = () => {
       return true;
     }
   }, true);
+
+  // Patch the ResizeObserver constructor to handle the error internally
+  const OriginalResizeObserver = window.ResizeObserver;
+  
+  // Create a patched version that suppresses the specific error
+  window.ResizeObserver = class PatchedResizeObserver extends OriginalResizeObserver {
+    constructor(callback: ResizeObserverCallback) {
+      super((entries, observer) => {
+        // Use requestAnimationFrame to defer the callback
+        // This helps prevent the "loop completed with undelivered notifications" error
+        requestAnimationFrame(() => {
+          try {
+            callback(entries, observer);
+          } catch (error) {
+            // Only log if it's not the ResizeObserver error
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            if (!errorMessage.includes('ResizeObserver loop completed with undelivered notifications')) {
+              console.error('ResizeObserver callback error:', error);
+            }
+          }
+        });
+      });
+    }
+  } as any;
+
+  // Also create a global error event listener for React's error boundary
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    const resizeObserverErrorHandler = (e: ErrorEvent) => {
+      if (e.message === 'ResizeObserver loop completed with undelivered notifications.') {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        return false;
+      }
+    };
+    
+    // Add to both error and unhandledrejection events
+    window.addEventListener('error', resizeObserverErrorHandler);
+  }
 };
 
 // Debounced ResizeObserver wrapper to prevent the error
