@@ -136,7 +136,7 @@ export class FlowExecutorService {
     }
   }
 
-  private async executeNode(page: Page, node: any, variables: Record<string, any>) {
+  private async executeNode(page: Page, node: any, variables: Record<string, any>, execution?: FlowExecution) {
     const config = node.data.config || {};
     const action = node.data.action;
     
@@ -784,6 +784,24 @@ export class FlowExecutorService {
           throw new Error(`Unknown action: ${action}`);
       }
     } catch (error) {
+      // Check if execution was cancelled and this is a browser-related error
+      if (execution && !this.runningExecutions.get(execution.id)) {
+        const browserErrors = [
+          'Target page, context or browser has been closed',
+          'Browser has been closed',
+          'Page has been closed',
+          'Context has been closed',
+          'Target closed',
+          'Protocol error'
+        ];
+        
+        // If this is a browser error and execution was cancelled, return success to avoid false errors
+        if (browserErrors.some(browserError => error.message.includes(browserError))) {
+          this.logger.debug(`Ignoring browser error after cancellation: ${error.message}`);
+          return { success: true, cancelled: true };
+        }
+      }
+      
       return { success: false, error: error.message };
     }
   }
@@ -860,7 +878,7 @@ export class FlowExecutorService {
       config: currentNode.data.config,
     });
 
-    const result = await this.executeNode(page, currentNode, executionVariables);
+    const result = await this.executeNode(page, currentNode, executionVariables, execution);
     
     executionLog.push({
       nodeId: currentNode.id,
