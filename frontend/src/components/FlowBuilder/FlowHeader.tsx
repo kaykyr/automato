@@ -186,13 +186,12 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({
           <button
             className={`header-btn primary ${isExecuting ? 'executing' : ''}`}
             onClick={onRunFlow}
-            disabled={isExecuting}
-            title={isExecuting ? t('flow.header.running') : t('flow.header.runFlow')}
+            title={isExecuting ? t('flow.header.stopExecution') : t('flow.header.runFlow')}
           >
             {isExecuting ? (
               <>
                 <Square size={16} />
-                <span>{t('flow.header.running')}</span>
+                <span>{t('flow.header.stop')}</span>
               </>
             ) : (
               <>

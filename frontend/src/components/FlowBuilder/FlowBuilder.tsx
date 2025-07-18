@@ -223,6 +223,16 @@ export const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId }) => {
               if (flow.variables) {
                 setFlowVariables(flow.variables);
               }
+
+              // Update browser settings if they exist
+              if (flow.browserSettings) {
+                setBrowserSettings(flow.browserSettings);
+              }
+
+              // Update API config if it exists
+              if (flow.apiConfig) {
+                setApiConfig(flow.apiConfig);
+              }
             });
           }
         } catch (error) {
@@ -623,7 +633,33 @@ export const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId }) => {
   //   setFlowVariables(prev => ({ ...prev, ...newVariables }));
   // }, []);
 
+  const handleStopExecution = async () => {
+    if (!executionResult?.id) {
+      toast.warning(t('toast.noExecutionToStop'), t('toast.noExecutionToStopDesc'));
+      return;
+    }
+
+    try {
+      await flowService.stopExecution(executionResult.id);
+      toast.success(t('toast.executionStopped'), t('toast.executionStoppedDesc'));
+      setIsExecuting(false);
+      
+      // Leave WebSocket room
+      if (isConnected && currentFlowId) {
+        leaveFlowExecution(executionResult.id, currentFlowId);
+      }
+    } catch (error) {
+      console.error('Error stopping execution:', error);
+      toast.error(t('toast.stopExecutionError'), t('toast.stopExecutionErrorDesc'));
+    }
+  };
+
   const handleRunFlow = async () => {
+    // If currently executing, stop execution
+    if (isExecuting) {
+      return handleStopExecution();
+    }
+
     // Auto-save flow before execution
     try {
       const flowData = {
@@ -837,6 +873,16 @@ export const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId }) => {
         
         setNodes(reconstructedNodes);
         setEdges(flow.edges || []);
+        
+        // Update browser settings if they exist
+        if (flow.browserSettings) {
+          setBrowserSettings(flow.browserSettings);
+        }
+
+        // Update API config if it exists
+        if (flow.apiConfig) {
+          setApiConfig(flow.apiConfig);
+        }
       } catch (error) {
         toast.error(t('toast.loadError'), t('toast.loadErrorDesc'));
       }
@@ -944,6 +990,16 @@ export const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId }) => {
         // Update flow variables if they exist
         if (flow.variables) {
           setFlowVariables(flow.variables);
+        }
+
+        // Update browser settings if they exist
+        if (flow.browserSettings) {
+          setBrowserSettings(flow.browserSettings);
+        }
+
+        // Update API config if it exists
+        if (flow.apiConfig) {
+          setApiConfig(flow.apiConfig);
         }
         
         // Close the flows list modal

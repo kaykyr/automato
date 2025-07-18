@@ -10,6 +10,7 @@ import { FlowWebSocketGateway } from '../websocket/websocket.gateway';
 @Injectable()
 export class FlowExecutorService {
   private readonly logger = new Logger(FlowExecutorService.name);
+  private readonly runningExecutions = new Map<string, boolean>();
 
   constructor(
     private readonly playwrightService: PlaywrightService,
@@ -25,6 +26,9 @@ export class FlowExecutorService {
     const executionLog = [];
 
     try {
+      // Mark execution as running
+      this.runningExecutions.set(execution.id, true);
+      
       execution.status = 'running';
       await this.executionRepository.save(execution);
 
@@ -64,6 +68,25 @@ export class FlowExecutorService {
       //   }
       // }
 
+      // Check if execution was stopped
+      if (!this.runningExecutions.get(execution.id)) {
+        execution.status = 'cancelled';
+        execution.error = 'Execution cancelled by user';
+        execution.completedAt = new Date();
+        execution.executionLog = executionLog;
+        await this.executionRepository.save(execution);
+
+        // Emit execution cancelled
+        this.webSocketGateway.emitExecutionError(execution.id, flow.id, {
+          status: 'cancelled',
+          error: 'Execution cancelled by user',
+          completedAt: execution.completedAt.toISOString(),
+          executionLog,
+        });
+
+        return execution;
+      }
+
       execution.status = 'completed';
       execution.results = executionVariables;
       execution.completedAt = new Date();
@@ -97,6 +120,9 @@ export class FlowExecutorService {
 
       throw error;
     } finally {
+      // Clean up running execution marker
+      this.runningExecutions.delete(execution.id);
+      
       if (!browserSettings.keepOpen) {
         await page.close();
       }
@@ -330,6 +356,7 @@ export class FlowExecutorService {
         case 'isVisible':
           const visibilitySelector = this.interpolateVariables(config.isVisible?.selector || '', variables);
           const timeout = parseInt(String(config.isVisible?.timeout)) || 5000;
+          const variableName = config.isVisible?.variableName;
           let isVisible = false;
           
           try {
@@ -352,11 +379,21 @@ export class FlowExecutorService {
             }
           }
           
-          return {
+          const result: any = {
             success: true,
             condition: isVisible,
             nextHandle: isVisible ? 'true' : 'false',
           };
+          
+          // If variable name is provided, store the result in a variable
+          if (variableName) {
+            result.variable = {
+              name: variableName,
+              value: isVisible,
+            };
+          }
+          
+          return result;
 
         case 'hover':
           const hoverSelector = this.interpolateVariables(config.hover?.selector || '', variables);
@@ -798,6 +835,12 @@ export class FlowExecutorService {
     executionLog: any[],
     execution: FlowExecution
   ) {
+    // Check if execution was stopped
+    if (!this.runningExecutions.get(execution.id)) {
+      this.logger.log(`Execution ${execution.id} was stopped, skipping node ${currentNode.id}`);
+      return;
+    }
+
     execution.currentNode = currentNode.id;
     await this.executionRepository.save(execution);
 
@@ -893,10 +936,22 @@ export class FlowExecutorService {
 
     if (result.nextHandle) {
       // Conditional node - find edges with specific sourceHandle
+      this.logger.debug(`Looking for edges from node ${currentNode.id} with sourceHandle: ${result.nextHandle}`);
       nextNodes = edges
         .filter(edge => edge.source === currentNode.id && edge.sourceHandle === result.nextHandle)
         .map(edge => nodes.find(node => node.id === edge.target))
         .filter(node => node);
+      
+      // If no edges found with specific sourceHandle, try finding edges without sourceHandle
+      // This handles cases where the edge was created without specifying a sourceHandle
+      if (nextNodes.length === 0) {
+        this.logger.debug(`No edges found with sourceHandle ${result.nextHandle}, trying edges without sourceHandle`);
+        const edgesWithoutHandle = edges.filter(edge => edge.source === currentNode.id && !edge.sourceHandle);
+        this.logger.debug(`Found ${edgesWithoutHandle.length} edges without sourceHandle:`, edgesWithoutHandle);
+        nextNodes = edgesWithoutHandle
+          .map(edge => nodes.find(node => node.id === edge.target))
+          .filter(node => node);
+      }
     } else {
       // Regular node - find all outgoing edges
       nextNodes = edges
@@ -904,6 +959,8 @@ export class FlowExecutorService {
         .map(edge => nodes.find(node => node.id === edge.target))
         .filter(node => node);
     }
+
+    this.logger.debug(`Found ${nextNodes.length} next nodes to execute:`, nextNodes.map(n => n?.id));
 
     // Execute next nodes
     for (const nextNode of nextNodes) {
@@ -1077,5 +1134,10 @@ export class FlowExecutorService {
     }
 
     return sorted;
+  }
+
+  stopExecution(executionId: string): void {
+    this.logger.log(`Stopping execution: ${executionId}`);
+    this.runningExecutions.set(executionId, false);
   }
 }

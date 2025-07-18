@@ -248,7 +248,7 @@ export interface FlowData {
 
 export interface FlowExecution {
   flowId: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
   currentNode?: string;
   results: Record<string, any>;
   error?: string;

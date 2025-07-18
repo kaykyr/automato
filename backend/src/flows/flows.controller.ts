@@ -72,6 +72,11 @@ export class FlowsController {
     return this.flowsService.getExecution(executionId);
   }
 
+  @Post('executions/:executionId/stop')
+  stopExecution(@Param('executionId') executionId: string) {
+    return this.flowsService.stopExecution(executionId);
+  }
+
   @Get('registered-routes')
   getRegisteredRoutes() {
     return this.dynamicRouteService.getRegisteredRoutes();

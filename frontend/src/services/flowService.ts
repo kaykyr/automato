@@ -60,4 +60,10 @@ export const flowService = {
     const response = await axios.get(`${API_BASE}/flows/executions/${executionId}`);
     return response.data;
   },
+
+  // Stop an execution
+  async stopExecution(executionId: string) {
+    const response = await axios.post(`${API_BASE}/flows/executions/${executionId}/stop`);
+    return response.data;
+  },
 };

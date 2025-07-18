@@ -109,4 +109,23 @@ export class FlowsService {
       relations: ['flow'],
     });
   }
+
+  async stopExecution(executionId: string): Promise<FlowExecution> {
+    const execution = await this.getExecution(executionId);
+    
+    if (execution.status === 'running' || execution.status === 'pending') {
+      execution.status = 'cancelled';
+      execution.completedAt = new Date();
+      execution.error = 'Execution cancelled by user';
+      
+      const savedExecution = await this.executionRepository.save(execution);
+      
+      // Notify executor service to stop execution
+      this.flowExecutorService.stopExecution(executionId);
+      
+      return savedExecution;
+    }
+    
+    return execution;
+  }
 }

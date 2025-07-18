@@ -29,6 +29,8 @@
       "logs": "Logs",
       "run": "Executar",
       "running": "Executando...",
+      "stop": "Parar",
+      "stopExecution": "Parar Execução",
       "newFlow": "Novo Fluxo",
       "browseFlows": "Navegar Fluxos",
       "updateFlow": "Atualizar Fluxo",
@@ -275,7 +277,13 @@
     "flowAutoSavedDesc": "Seu fluxo foi salvo automaticamente com sucesso",
     "autoSaveError": "Falha no salvamento automático",
     "connectionLost": "Conexão perdida com o servidor",
-    "connectionRestored": "Conexão restaurada com o servidor"
+    "connectionRestored": "Conexão restaurada com o servidor",
+    "executionStopped": "Execução parada",
+    "executionStoppedDesc": "A execução do fluxo foi interrompida com sucesso",
+    "noExecutionToStop": "Nenhuma execução para parar",
+    "noExecutionToStopDesc": "Não há execução ativa para interromper",
+    "stopExecutionError": "Erro ao parar execução",
+    "stopExecutionErrorDesc": "Houve um erro ao tentar parar a execução"
   },
   "browser": {
     "title": "Configurações do Navegador",
