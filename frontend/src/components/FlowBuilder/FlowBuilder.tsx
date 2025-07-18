@@ -907,45 +907,6 @@ export const FlowBuilder: React.FC = () => {
           >
             <Background color="#334155" gap={16} />
             <Controls />
-            <MiniMap
-              nodeColor={(node) => {
-                const colorMap: Record<string, string> = {
-                  start: '#22C55E',
-                  navigate: '#4CAF50',
-                  click: '#2196F3',
-                  type: '#9C27B0',
-                  waitFor: '#FF9800',
-                  scroll: '#00BCD4',
-                  extractText: '#4CAF50',
-                  extractHtml: '#E91E63',
-                  screenshot: '#795548',
-                  condition: '#607D8B',
-                  loop: '#F44336',
-                  setVariable: '#3F51B5',
-                  api: '#009688',
-                  isVisible: '#FF5722',
-                  waitTime: '#FF9800',
-                  extractAttribute: '#4CAF50',
-                  hover: '#2196F3',
-                  selectOption: '#9C27B0',
-                  checkBox: '#4CAF50',
-                  keyPress: '#607D8B',
-                  iframe: '#FF5722',
-                  download: '#00BCD4',
-                  uploadFile: '#FF9800',
-                  clearCookies: '#F44336',
-                  setCookie: '#795548',
-                  alert: '#FF5722',
-                  regex: '#8B5CF6',
-                  extractUrls: '#10B981',
-                  response: '#EF4444',
-                };
-                return colorMap[node.data?.action] || '#666';
-              }}
-              style={{
-                backgroundColor: '#0f172a',
-              }}
-            />
           </ReactFlow>
         </div>
       </div>
