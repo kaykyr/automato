@@ -155,10 +155,19 @@ export class FlowExecutorService {
           // Support both direct URL and variable-based URL
           let url = '';
           if (config.navigate?.urlVariable && variables[config.navigate.urlVariable]) {
-            url = String(variables[config.navigate.urlVariable]);
+            const urlValue = variables[config.navigate.urlVariable];
+            // If it's an array, take the first element (this shouldn't happen in loop context)
+            url = Array.isArray(urlValue) ? String(urlValue[0]) : String(urlValue);
           } else {
             url = this.interpolateVariables(config.navigate?.url || '', variables);
           }
+          
+          // Additional debug logging
+          console.log(`🧭 Navigate node attempting to go to: ${url}`);
+          console.log(`📋 Current variables:`, Object.keys(variables).reduce((acc, key) => {
+            acc[key] = Array.isArray(variables[key]) ? `[Array of ${variables[key].length}]` : variables[key];
+            return acc;
+          }, {}));
           
           const waitUntil = config.navigate?.waitUntil || 'networkidle';
           await page.goto(url, { waitUntil });
@@ -603,12 +612,30 @@ export class FlowExecutorService {
         case 'extractUrls':
           const extractUrlsConfig = config.extractUrls;
           const urlSelector = this.interpolateVariables(extractUrlsConfig?.selector || 'body', variables);
-          const includeRelative = extractUrlsConfig?.includeRelative || false;
+          const includeRelative = extractUrlsConfig?.includeRelative !== false;
           const includeEmpty = extractUrlsConfig?.includeEmpty || false;
           const filterDuplicates = extractUrlsConfig?.filterDuplicates !== false;
           const baseUrl = extractUrlsConfig?.baseUrl || '';
           
           try {
+            // First, check if the selector matches any elements
+            const elementsCount = await page.$$eval(urlSelector, (elements) => elements.length);
+            if (elementsCount === 0) {
+              console.log(`⚠️  No elements found with selector: ${urlSelector}`);
+              return {
+                success: true,
+                variable: {
+                  name: extractUrlsConfig?.variableName || 'extractedUrls',
+                  value: [],
+                },
+              };
+            }
+            
+            // Check if there are any anchor tags within the selector
+            const anchorsCount = await page.$$eval(`${urlSelector} a`, (links) => links.length);
+            console.log(`🔍 Found ${elementsCount} elements with selector "${urlSelector}"`);
+            console.log(`🔗 Found ${anchorsCount} anchor tags within selector`);
+            
             // Extract all href attributes from anchor tags within the selector
             const urls = await page.$$eval(
               `${urlSelector} a[href]`,
@@ -656,6 +683,9 @@ export class FlowExecutorService {
             
             // Filter duplicates if requested
             const finalUrls = filterDuplicates ? [...new Set(urls)] : urls;
+            
+            console.log(`📊 Extracted ${urls.length} URLs, final: ${finalUrls.length} (after deduplication)`);
+            console.log(`🎯 Sample URLs:`, finalUrls.slice(0, 3));
             
             return {
               success: true,
@@ -1084,7 +1114,16 @@ export class FlowExecutorService {
 
   private interpolateVariables(text: string, variables: Record<string, any>): string {
     return text.replace(/\{\{(\w+)\}\}/g, (match, varName) => {
-      return variables[varName] !== undefined ? String(variables[varName]) : match;
+      if (variables[varName] !== undefined) {
+        const value = variables[varName];
+        // If it's an array being interpolated, it's probably a mistake - log it
+        if (Array.isArray(value)) {
+          console.warn(`⚠️  Interpolating array variable "${varName}" with ${value.length} items as string. This might be unintended.`);
+          console.warn(`📋 Array content:`, value.slice(0, 3));
+        }
+        return String(value);
+      }
+      return match;
     });
   }
 
